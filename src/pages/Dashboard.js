@@ -10,10 +10,11 @@ import Image from "react-bootstrap/Image";
 import Navigation from "../components/Navigation";
 
 const Dashboard = () => {
+  const token = JSON.parse(localStorage.getItem("token"));
   const user = useSelector(state => state.user.user?.email);
+  const getStatus = useSelector(state => state.user.getUserStatus);
 
   let content;
-  const getStatus = useSelector(state => state.user.getUserStatus);
   if (getStatus === "loading") {
     content = "Loading...";
   } else if (getStatus === "succeeded") {
@@ -36,7 +37,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <Navigation />
+      <Navigation token={token} />
       <Container className="w-full d-flex flex-column gap-4">
         {content}
       </Container>

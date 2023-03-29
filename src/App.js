@@ -1,27 +1,23 @@
 // react imports
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RouterProvider } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 // component imports
-import router from "./routes/router";
-import { getUserData } from "./store/user/userActions";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import PrivateRoutes from "./routes/PrivateRoutes";
 
 function App() {
-  const token = JSON.parse(localStorage.getItem("token"));
-  const userState = useSelector(state => state.user);
-  const dispatch = useDispatch();
-  console.log("App ~ userState:", userState);
-
-  useEffect(() => {
-    if (token) {
-      dispatch(getUserData(token));
-    }
-  }, [token, dispatch]);
-
   return (
     <div className="App">
-      <RouterProvider router={router} />
+      <BrowserRouter>
+        <Routes>
+          <Route element={<PrivateRoutes />}>
+            <Route element={<Dashboard />} path="/" exact />
+          </Route>
+          <Route element={<Login />} path="/login" />
+          <Route element={<Login />} path="/register" />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }

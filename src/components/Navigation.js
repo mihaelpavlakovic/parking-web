@@ -11,31 +11,43 @@ import Navbar from "react-bootstrap/Navbar";
 // store imports
 import { LOGOUT } from "../store/user/authSlice";
 
-const Navigation = () => {
+const Navigation = props => {
   const dispatch = useDispatch();
+
   const logoutHandler = () => {
     dispatch(LOGOUT());
   };
+  let content;
+  if (props.token) {
+    content = (
+      <>
+        <Nav.Link as={Link} to="/">
+          Home
+        </Nav.Link>
+        <Nav.Link as={Link} onClick={logoutHandler}>
+          Logout
+        </Nav.Link>
+      </>
+    );
+  } else {
+    content = (
+      <>
+        <Nav.Link as={Link} to="/login">
+          Login
+        </Nav.Link>
+        <Nav.Link as={Link} to="/register">
+          Register
+        </Nav.Link>
+      </>
+    );
+  }
 
   return (
     <>
       <Navbar bg="dark" variant="dark">
         <Container>
           <Navbar.Brand>Parking App</Navbar.Brand>
-          <Nav>
-            <Nav.Link as={Link} to="/">
-              Home
-            </Nav.Link>
-            <Nav.Link as={Link} to="/login">
-              Login
-            </Nav.Link>
-            <Nav.Link as={Link} to="/register">
-              Register
-            </Nav.Link>
-            <Nav.Link as={Link} onClick={logoutHandler}>
-              Logout
-            </Nav.Link>
-          </Nav>
+          <Nav>{content}</Nav>
         </Container>
       </Navbar>
     </>
