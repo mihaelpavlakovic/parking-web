@@ -17,6 +17,8 @@ import { login } from "../store/user/userActions";
 const Login = () => {
   const [formEmailInput, setFormEmailInput] = useState("");
   const [formPasswordInput, setFormPasswordInput] = useState("");
+  const error = useSelector(state => state.user.error);
+  const errorMessage = useSelector(state => state.user.message);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -47,13 +49,15 @@ const Login = () => {
     content = "Loading...";
   } else if (postStatus === "failed") {
     content = "Error";
+  } else if (postStatus === "succeeded" && error) {
+    content = errorMessage;
   }
 
   useEffect(() => {
-    if (postStatus === "succeeded") {
+    if (postStatus === "succeeded" && !error) {
       navigate("/");
     }
-  }, [postStatus, navigate]);
+  }, [postStatus, navigate, error]);
 
   return (
     <>

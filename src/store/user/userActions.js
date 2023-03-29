@@ -15,7 +15,19 @@ export const login = createAsyncThunk(
       }
     );
 
-    return { userToken: response.data.data.token };
+    if (response.data.error) {
+      return {
+        userToken: null,
+        message: response.data.message,
+        error: response.data.error,
+      };
+    }
+
+    return {
+      userToken: response.data.data.token,
+      message: response.data.message,
+      error: response.data.error,
+    };
   }
 );
 

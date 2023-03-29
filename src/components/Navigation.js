@@ -1,6 +1,6 @@
 // react imports
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // bootstrap imports
@@ -12,13 +12,20 @@ import Navbar from "react-bootstrap/Navbar";
 import { LOGOUT } from "../store/user/authSlice";
 
 const Navigation = props => {
+  const [redirect, setRedirect] = useState(false);
   const dispatch = useDispatch();
 
   const logoutHandler = () => {
     dispatch(LOGOUT());
+    setRedirect(true);
   };
+
+  if (redirect) {
+    return <Navigate to="/login" />;
+  }
+
   let content;
-  if (props.token) {
+  if (props.token && !redirect) {
     content = (
       <>
         <Nav.Link as={Link} to="/">

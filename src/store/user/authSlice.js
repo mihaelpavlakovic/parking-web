@@ -6,9 +6,10 @@ export const userSlice = createSlice({
   initialState: {
     token: null,
     user: null,
+    message: "",
     status: "idle",
     getUserStatus: "idle",
-    error: null,
+    error: false,
   },
   reducers: {
     LOGIN: (state, action) => {
@@ -20,6 +21,10 @@ export const userSlice = createSlice({
     LOGOUT: state => {
       localStorage.removeItem("token");
       state.token = null;
+      state.message = "";
+      state.error = false;
+      state.status = "idle";
+      state.getUserStatus = "idle";
     },
   },
   extraReducers(builder) {
@@ -32,6 +37,8 @@ export const userSlice = createSlice({
         // Add any fetched posts to the array
         localStorage.setItem("token", JSON.stringify(action.payload.userToken));
         state.token = action.payload.userToken;
+        state.message = action.payload.message;
+        state.error = action.payload.error;
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
