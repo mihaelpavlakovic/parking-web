@@ -91,11 +91,15 @@ const Login = () => {
                   type="submit"
                   variant="primary"
                   size="md"
-                  disabled={postStatus === "loading" && true}
+                  disabled={
+                    postStatus === "loading" &&
+                    postStatus === "succeeded" &&
+                    true
+                  }
                 >
                   {postStatus === "loading" ? content : "Login"}
                 </Button>
-                {postStatus !== "loading" && (
+                {postStatus !== "loading" && postStatus !== "succeeded" && (
                   <Button
                     type="button"
                     variant="outline-primary"

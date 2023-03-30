@@ -1,4 +1,5 @@
 // react imports
+import { useSelector } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 // component imports
@@ -7,6 +8,8 @@ import Login from "./pages/Login";
 import PrivateRoutes from "./routes/PrivateRoutes";
 
 function App() {
+  const cameraObj = useSelector(state => state.camera);
+  console.log("App ~ cameraObj:", cameraObj);
   return (
     <div className="App">
       <BrowserRouter>

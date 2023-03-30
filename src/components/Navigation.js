@@ -10,6 +10,7 @@ import Navbar from "react-bootstrap/Navbar";
 
 // store imports
 import { LOGOUT } from "../store/user/authSlice";
+import { REMOVE_DATA } from "../store/camera/cameraSlice";
 
 const Navigation = props => {
   const [redirect, setRedirect] = useState(false);
@@ -17,6 +18,7 @@ const Navigation = props => {
 
   const logoutHandler = () => {
     dispatch(LOGOUT());
+    dispatch(REMOVE_DATA());
     setRedirect(true);
   };
 
