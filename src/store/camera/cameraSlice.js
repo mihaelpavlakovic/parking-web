@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getCameras } from "./cameraActions";
+import { getCameras, getParkingStatus } from "./cameraActions";
 
 export const cameraSlice = createSlice({
   name: "camera",
   initialState: {
     cameraData: null,
+    parkingStatus: null,
     message: "",
     status: "idle",
     error: false,
@@ -15,8 +16,12 @@ export const cameraSlice = createSlice({
       state.error = action.payload.error;
       state.message = action.payload.message;
     },
+    PARKING_STATUS: (state, action) => {
+      state.parkingStatus = action.payload.data;
+    },
     REMOVE_DATA: state => {
       state.cameraData = null;
+      state.parkingStatus = null;
       state.message = "";
       state.status = "idle";
       state.error = false;
@@ -29,12 +34,24 @@ export const cameraSlice = createSlice({
       })
       .addCase(getCameras.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // Add any fetched posts to the array
         state.cameraData = action.payload.data;
         state.message = action.payload.message;
         state.error = action.payload.error;
       })
       .addCase(getCameras.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(getParkingStatus.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(getParkingStatus.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.parkingStatus = action.payload.data;
+        state.message = action.payload.message;
+        state.error = action.payload.error;
+      })
+      .addCase(getParkingStatus.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });
