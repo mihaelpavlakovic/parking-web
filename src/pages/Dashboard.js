@@ -24,26 +24,31 @@ const Dashboard = () => {
   const getStatus = useSelector(state => state.user.getUserStatus);
   const cameras = useSelector(state => state.camera.cameraData);
   const [userCameras, setUserCameras] = useState([]);
-  const [size, setSize] = useState({ x: 854, y: 480 });
+  const [size, setSize] = useState({ x: null, y: null });
 
   useEffect(() => {
     const checkSize = () => {
-      if (window.innerWidth < 430) {
+      const innerWidth = window.innerWidth;
+      if (innerWidth < 430) {
         setSize({ x: 320, y: 180 });
-      } else if (window.innerWidth > 430 && window.innerWidth < 750) {
+      } else if (innerWidth > 430 && innerWidth < 750) {
         setSize({ x: 426, y: 240 });
-      } else if (window.innerWidth > 750 && window.innerWidth < 1000) {
+      } else if (innerWidth > 750 && innerWidth < 1000) {
         setSize({ x: 640, y: 360 });
-      } else if (window.innerWidth > 1000 && window.innerWidth < 1400) {
+      } else if (innerWidth > 1000 && innerWidth < 1400) {
         setSize({ x: 854, y: 480 });
-      } else if (window.innerWidth > 1400) {
+      } else if (innerWidth > 1400) {
         setSize({ x: 1280, y: 720 });
       }
     };
 
+    if (size.x === null) {
+      checkSize();
+    }
+
     window.addEventListener("resize", checkSize);
     return () => window.removeEventListener("resize", checkSize);
-  }, []);
+  }, [size.x]);
 
   const scaleX = size.x / 640;
   const scaleY = size.y / 360;
