@@ -9,7 +9,7 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 
 // store imports
-import { LOGOUT } from "../store/user/authSlice";
+import { LOGOUT } from "../store/user/userSlice";
 import { REMOVE_DATA } from "../store/camera/cameraSlice";
 
 const Navigation = props => {
@@ -55,7 +55,7 @@ const Navigation = props => {
     <>
       <Navbar bg="dark" variant="dark">
         <Container>
-          <Navbar.Brand>Parking App</Navbar.Brand>
+          <Navbar.Brand>Parking API</Navbar.Brand>
           <Nav>{content}</Nav>
         </Container>
       </Navbar>

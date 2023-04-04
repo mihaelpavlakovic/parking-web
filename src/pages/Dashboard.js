@@ -148,41 +148,45 @@ const Dashboard = () => {
                   >
                     <Layer>
                       {_.map(parkingLocations, parkingLocation => {
-                        const flattenedParkingSpots = _.map(
+                        const parkingSpotsInfo = _.map(
                           parkingLocation,
                           parkingSpot => {
-                            return _.flatten(parkingSpot.polygon);
-                          }
-                        );
-                        return _.map(
-                          flattenedParkingSpots,
-                          (flattenedParkingSpot, index) => {
-                            return (
-                              <React.Fragment key={index}>
-                                <Text
-                                  text="p"
-                                  fontSize={16}
-                                  fill="red"
-                                  x={
-                                    (flattenedParkingSpot[0] +
-                                      flattenedParkingSpot[2]) /
-                                    2
-                                  }
-                                  y={
-                                    (flattenedParkingSpot[1] +
-                                      flattenedParkingSpot[3]) /
-                                    2
-                                  }
-                                />
-                                <Line
-                                  points={flattenedParkingSpot}
-                                  closed
-                                  stroke="red"
-                                />
-                              </React.Fragment>
+                            const flattenedParkingSpot = _.flatten(
+                              parkingSpot.polygon
                             );
+                            return {
+                              flattenedParkingSpot,
+                              name: parkingSpot.name,
+                              occupied: parkingSpot.occupied,
+                            };
                           }
                         );
+                        return _.map(parkingSpotsInfo, (parkingSpot, index) => {
+                          return (
+                            <React.Fragment key={index}>
+                              <Text
+                                text={`${parkingSpot.name} - ${parkingSpot.occupied}`}
+                                fontSize={16}
+                                fill={parkingSpot.occupied ? "red" : "green"}
+                                x={
+                                  (parkingSpot.flattenedParkingSpot[0] +
+                                    parkingSpot.flattenedParkingSpot[2]) /
+                                  2
+                                }
+                                y={
+                                  (parkingSpot.flattenedParkingSpot[1] +
+                                    parkingSpot.flattenedParkingSpot[3]) /
+                                  2
+                                }
+                              />
+                              <Line
+                                points={parkingSpot.flattenedParkingSpot}
+                                closed
+                                stroke={parkingSpot.occupied ? "red" : "green"}
+                              />
+                            </React.Fragment>
+                          );
+                        });
                       })}
                     </Layer>
                   </Stage>
