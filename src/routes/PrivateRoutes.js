@@ -4,6 +4,7 @@ import { Outlet, Navigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getUserData } from "../store/user/userActions";
 import { getCameras } from "../store/camera/cameraActions";
+import { LOGOUT } from "../store/user/authSlice";
 
 const PrivateRoutes = () => {
   const token = JSON.parse(localStorage.getItem("token"));
@@ -13,6 +14,8 @@ const PrivateRoutes = () => {
     if (token) {
       dispatch(getUserData(token));
       dispatch(getCameras(token));
+    } else {
+      dispatch(LOGOUT());
     }
   }, [token, dispatch]);
 

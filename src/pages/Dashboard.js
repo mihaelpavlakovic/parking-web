@@ -14,39 +14,39 @@ import Navigation from "../components/Navigation";
 import { Stage, Layer, Line, Text } from "react-konva";
 var _ = require("lodash");
 
-var SCENE_BASE_WIDTH = 800;
-var SCENE_BASE_HEIGHT = 600;
-
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const [currentImage, setCurrentImage] = useState("");
-  const [parkingSpot, setParkingSpot] = useState([]);
+  const [currentImages, setCurrentImages] = useState([]);
+  const [parkingLocations, setParkingLocations] = useState([]);
   const token = JSON.parse(localStorage.getItem("token"));
   const userEmail = useSelector(state => state.user.user?.email);
   const userId = useSelector(state => state.user.user?.id);
   const getStatus = useSelector(state => state.user.getUserStatus);
   const cameras = useSelector(state => state.camera.cameraData);
   const [userCameras, setUserCameras] = useState([]);
-
-  const [size, setSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const [size, setSize] = useState({ x: 854, y: 480 });
 
   useEffect(() => {
     const checkSize = () => {
-      setSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+      if (window.innerWidth < 430) {
+        setSize({ x: 320, y: 180 });
+      } else if (window.innerWidth > 430 && window.innerWidth < 750) {
+        setSize({ x: 426, y: 240 });
+      } else if (window.innerWidth > 750 && window.innerWidth < 1000) {
+        setSize({ x: 640, y: 360 });
+      } else if (window.innerWidth > 1000 && window.innerWidth < 1400) {
+        setSize({ x: 854, y: 480 });
+      } else if (window.innerWidth > 1400) {
+        setSize({ x: 1280, y: 720 });
+      }
     };
 
     window.addEventListener("resize", checkSize);
     return () => window.removeEventListener("resize", checkSize);
   }, []);
 
-  const scaleX = size.width / SCENE_BASE_WIDTH;
-  const scaleY = size.height / SCENE_BASE_HEIGHT;
+  const scaleX = size.x / 640;
+  const scaleY = size.y / 360;
 
   useEffect(() => {
     dispatch(getCameras(token));
@@ -60,32 +60,46 @@ const Dashboard = () => {
   }, [dispatch, cameras, userId]);
 
   useEffect(() => {
-    const sse = new EventSource(
-      `http://3.253.53.168:5050/rest-api/v1/stream?cameraId=${userCameras[1]?.id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const sseConnections = userCameras.map(userCamera => {
+      const sse = new EventSource(
+        `http://3.253.53.168:5050/rest-api/v1/stream?cameraId=${userCamera.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      function getRealtimeData(data) {
+        // console.log(data);
+        setCurrentImages(prevImages => ({
+          ...prevImages,
+          [userCamera.id]: data.occupancy.originalImage,
+        }));
+        setParkingLocations(prevSpots => ({
+          ...prevSpots,
+          [userCamera.id]: data.occupancy.data.spots,
+        }));
       }
-    );
-    function getRealtimeData(data) {
-      console.log(data);
-      setCurrentImage(data.occupancy.originalImage);
-      setParkingSpot(data.occupancy.data.spots);
-    }
-    sse.onmessage = e => getRealtimeData(JSON.parse(e.data));
-    sse.onerror = () => {
-      sse.close();
-    };
+      sse.onmessage = e => getRealtimeData(JSON.parse(e.data));
+      sse.onerror = () => {
+        sse.close();
+      };
+      return sse;
+    });
+
+    Promise.all(sseConnections).then(() => {
+      console.log("All SSE connections established!");
+    });
+
     return () => {
-      sse.close();
+      sseConnections.forEach(sse => sse.close());
     };
   }, [token, userCameras]);
 
   let content;
   if (getStatus === "loading") {
     content = (
-      <Container>
+      <>
         <Placeholder className="mt-4 d-flex flex-column" animation="wave">
           <Placeholder className="mb-2" xs={5} style={{ height: "32pt" }} />
           <Placeholder className="mb-3" xs={6} style={{ height: "15pt" }} />
@@ -95,71 +109,92 @@ const Dashboard = () => {
             <Placeholder className="w-100 h-100" />
           </Placeholder>
         </Container>
-      </Container>
+      </>
     );
   } else if (getStatus === "succeeded") {
     content = (
       <>
-        <Container>
-          <h1 className="mt-4">Dashboard</h1>
-          {userEmail !== null && <p>Logged in as {userEmail}</p>}
-        </Container>
-        <div className="ratio ratio-16x9">
-          {userCameras === [] ? (
-            <Placeholder animation="wave">
-              <Placeholder className="w-100 h-100" />
-            </Placeholder>
-          ) : (
-            <>
-              <Image
-                id="imageContain"
-                className="w-100 h-100"
-                src={`data:image/png;base64, ${currentImage}`}
-                alt="Parking lot feed"
-              />
-              <Stage
-                width={size.width}
-                height={size.height}
-                scaleX={scaleX}
-                scaleY={scaleY}
-              >
-                <Layer className="w-75 h-75">
-                  {_.map(parkingSpot, (parkingSpace, index) => {
-                    const flattenPolygon = _.flatten(parkingSpace.polygon);
-                    return (
-                      <>
-                        <Text
-                          text={`${parkingSpace.name} - ${parkingSpace.occupied}`}
-                          fontSize={16}
-                          fill="red"
-                          x={(flattenPolygon[0] + flattenPolygon[2]) / 2}
-                          y={(flattenPolygon[1] + flattenPolygon[3]) / 2}
-                        />
-                        <Line
-                          key={index}
-                          points={flattenPolygon}
-                          closed
-                          stroke="red"
-                        />
-                      </>
-                    );
-                  })}
-                </Layer>
-              </Stage>
-            </>
-          )}
-        </div>
+        <h1 className="mt-4">Dashboard</h1>
+        {userEmail !== null && <p>Logged in as {userEmail}</p>}
+        {currentImages.length === 0
+          ? _.map(userCameras, (userCamera, index) => {
+              return (
+                <Container key={index} className="ratio ratio-16x9 mb-2">
+                  <Placeholder animation="wave">
+                    <Placeholder className="w-100 h-100" />
+                  </Placeholder>
+                </Container>
+              );
+            })
+          : _.map(currentImages, (currentImage, index) => {
+              return (
+                <div key={index} className="ratio ratio-16x9 mb-2">
+                  <Image
+                    id="imageContain"
+                    style={{ width: `${size.x}px`, height: `${size.y}px` }}
+                    src={`data:image/png;base64, ${currentImage}`}
+                    alt="Parking lot feed"
+                  />
+                  <Stage
+                    width={size.x}
+                    height={size.y}
+                    scaleX={scaleX}
+                    scaleY={scaleY}
+                  >
+                    <Layer>
+                      {_.map(parkingLocations, parkingLocation => {
+                        const flattenedParkingSpots = _.map(
+                          parkingLocation,
+                          parkingSpot => {
+                            return _.flatten(parkingSpot.polygon);
+                          }
+                        );
+                        return _.map(
+                          flattenedParkingSpots,
+                          (flattenedParkingSpot, index) => {
+                            return (
+                              <React.Fragment key={index}>
+                                <Text
+                                  text="p"
+                                  fontSize={16}
+                                  fill="red"
+                                  x={
+                                    (flattenedParkingSpot[0] +
+                                      flattenedParkingSpot[2]) /
+                                    2
+                                  }
+                                  y={
+                                    (flattenedParkingSpot[1] +
+                                      flattenedParkingSpot[3]) /
+                                    2
+                                  }
+                                />
+                                <Line
+                                  points={flattenedParkingSpot}
+                                  closed
+                                  stroke="red"
+                                />
+                              </React.Fragment>
+                            );
+                          }
+                        );
+                      })}
+                    </Layer>
+                  </Stage>
+                </div>
+              );
+            })}
       </>
     );
   } else if (getStatus === "failed") {
-    content = "Error";
+    content = <p>Error</p>;
   }
 
   return (
     <div>
       <Navigation token={token} />
       <div className="w-full h-full d-flex flex-column overflow-hidden">
-        {content}
+        <Container>{content}</Container>
       </div>
     </div>
   );
