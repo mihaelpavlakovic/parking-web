@@ -33,6 +33,9 @@ const Navigation = props => {
         <Nav.Link as={Link} to="/">
           Home
         </Nav.Link>
+        <Nav.Link as={Link} to="/profile">
+          Profile
+        </Nav.Link>
         <Nav.Link as={Link} onClick={logoutHandler}>
           Logout
         </Nav.Link>
@@ -53,7 +56,7 @@ const Navigation = props => {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark">
+      <Navbar bg="dark" variant="dark" style={{ height: "6dvh" }}>
         <Container>
           <Navbar.Brand>Parking API</Navbar.Brand>
           <Nav>{content}</Nav>

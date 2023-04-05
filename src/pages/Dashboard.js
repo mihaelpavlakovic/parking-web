@@ -62,7 +62,7 @@ const Dashboard = () => {
       const currentUserCameras = _.filter(cameras, { userId: userId });
       setUserCameras(currentUserCameras);
     }
-  }, [dispatch, cameras, userId]);
+  }, [cameras, userId]);
 
   useEffect(() => {
     const sseConnections = userCameras.map(userCamera => {
@@ -131,66 +131,77 @@ const Dashboard = () => {
                 </Container>
               );
             })
-          : _.map(currentImages, (currentImage, index) => {
+          : Object.keys(currentImages).map((currentImage, index) => {
               return (
-                <div key={index} className="ratio ratio-16x9 mb-2">
-                  <Image
-                    id="imageContain"
-                    style={{ width: `${size.x}px`, height: `${size.y}px` }}
-                    src={`data:image/png;base64, ${currentImage}`}
-                    alt="Parking lot feed"
-                  />
-                  <Stage
-                    width={size.x}
-                    height={size.y}
-                    scaleX={scaleX}
-                    scaleY={scaleY}
-                  >
-                    <Layer>
-                      {_.map(parkingLocations, parkingLocation => {
-                        const parkingSpotsInfo = _.map(
-                          parkingLocation,
-                          parkingSpot => {
-                            const flattenedParkingSpot = _.flatten(
-                              parkingSpot.polygon
-                            );
-                            return {
-                              flattenedParkingSpot,
-                              name: parkingSpot.name,
-                              occupied: parkingSpot.occupied,
-                            };
-                          }
-                        );
-                        return _.map(parkingSpotsInfo, (parkingSpot, index) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Text
-                                text={`${parkingSpot.name} - ${parkingSpot.occupied}`}
-                                fontSize={16}
-                                fill={parkingSpot.occupied ? "red" : "green"}
-                                x={
-                                  (parkingSpot.flattenedParkingSpot[0] +
-                                    parkingSpot.flattenedParkingSpot[2]) /
-                                  2
-                                }
-                                y={
-                                  (parkingSpot.flattenedParkingSpot[1] +
-                                    parkingSpot.flattenedParkingSpot[3]) /
-                                  2
-                                }
-                              />
-                              <Line
-                                points={parkingSpot.flattenedParkingSpot}
-                                closed
-                                stroke={parkingSpot.occupied ? "red" : "green"}
-                              />
-                            </React.Fragment>
+                <React.Fragment key={index}>
+                  <h4>{userCameras[index].name}</h4>
+
+                  <div className="ratio ratio-16x9 mb-2">
+                    <Image
+                      id="imageContain"
+                      style={{ width: `${size.x}px`, height: `${size.y}px` }}
+                      src={`data:image/png;base64, ${currentImages[currentImage]}`}
+                      alt="Parking lot feed"
+                    />
+                    <Stage
+                      width={size.x}
+                      height={size.y}
+                      scaleX={scaleX}
+                      scaleY={scaleY}
+                    >
+                      <Layer>
+                        {_.map(parkingLocations, parkingLocation => {
+                          const parkingSpotsInfo = _.map(
+                            parkingLocation,
+                            parkingSpot => {
+                              const flattenedParkingSpot = _.flatten(
+                                parkingSpot.polygon
+                              );
+                              return {
+                                flattenedParkingSpot,
+                                name: parkingSpot.name,
+                                occupied: parkingSpot.occupied,
+                              };
+                            }
                           );
-                        });
-                      })}
-                    </Layer>
-                  </Stage>
-                </div>
+                          return _.map(
+                            parkingSpotsInfo,
+                            (parkingSpot, index) => {
+                              return (
+                                <React.Fragment key={index}>
+                                  <Text
+                                    text={`${parkingSpot.name} - ${parkingSpot.occupied}`}
+                                    fontSize={16}
+                                    fill={
+                                      parkingSpot.occupied ? "red" : "green"
+                                    }
+                                    x={
+                                      (parkingSpot.flattenedParkingSpot[0] +
+                                        parkingSpot.flattenedParkingSpot[2]) /
+                                      2
+                                    }
+                                    y={
+                                      (parkingSpot.flattenedParkingSpot[1] +
+                                        parkingSpot.flattenedParkingSpot[3]) /
+                                      2
+                                    }
+                                  />
+                                  <Line
+                                    points={parkingSpot.flattenedParkingSpot}
+                                    closed
+                                    stroke={
+                                      parkingSpot.occupied ? "red" : "green"
+                                    }
+                                  />
+                                </React.Fragment>
+                              );
+                            }
+                          );
+                        })}
+                      </Layer>
+                    </Stage>
+                  </div>
+                </React.Fragment>
               );
             })}
       </>
