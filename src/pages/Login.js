@@ -14,12 +14,17 @@ import backgroundImage from "../assets/parking-background.png";
 
 // store imports
 import { login } from "../store/user/userActions";
+import {
+  selectServerResponseError,
+  selectServerResponseMessage,
+  selectTokenRequestStatus,
+} from "../store/user/userSlice";
 
 const Login = () => {
   const [formEmailInput, setFormEmailInput] = useState("");
   const [formPasswordInput, setFormPasswordInput] = useState("");
-  const error = useSelector(state => state.user.error);
-  const errorMessage = useSelector(state => state.user.message);
+  const serverResponseError = useSelector(selectServerResponseError);
+  const serverResponseMessage = useSelector(selectServerResponseMessage);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -45,18 +50,18 @@ const Login = () => {
   };
 
   let content;
-  const postStatus = useSelector(state => state.user.status);
-  if (postStatus === "failed") {
-    content = `Error: ${error}`;
-  } else if (postStatus === "succeeded" && error) {
-    content = `Error: ${errorMessage}`;
+  const tokenRequestStatus = useSelector(selectTokenRequestStatus);
+  if (tokenRequestStatus === "failed") {
+    content = `Error: ${serverResponseError}`;
+  } else if (tokenRequestStatus === "succeeded" && serverResponseError) {
+    content = `Error: ${serverResponseMessage}`;
   }
 
   useEffect(() => {
-    if (postStatus === "succeeded" && !error) {
+    if (tokenRequestStatus === "succeeded" && !serverResponseError) {
       navigate("/");
     }
-  }, [postStatus, navigate, error]);
+  }, [tokenRequestStatus, navigate, serverResponseError]);
 
   return (
     <>
@@ -102,23 +107,26 @@ const Login = () => {
                       variant="primary"
                       size="md"
                       disabled={
-                        postStatus === "loading" &&
-                        postStatus === "succeeded" &&
+                        tokenRequestStatus === "loading" &&
+                        tokenRequestStatus === "succeeded" &&
                         true
                       }
                     >
-                      {postStatus === "loading" ? "Loading..." : "Login"}
+                      {tokenRequestStatus === "loading"
+                        ? "Loading..."
+                        : "Login"}
                     </Button>
-                    {postStatus !== "loading" && postStatus !== "succeeded" && (
-                      <Button
-                        type="button"
-                        variant="outline-primary"
-                        size="md"
-                        onClick={resetHandler}
-                      >
-                        Reset
-                      </Button>
-                    )}
+                    {tokenRequestStatus !== "loading" &&
+                      tokenRequestStatus !== "succeeded" && (
+                        <Button
+                          type="button"
+                          variant="outline-primary"
+                          size="md"
+                          onClick={resetHandler}
+                        >
+                          Reset
+                        </Button>
+                      )}
                   </div>
                 </form>
               </CardItem>

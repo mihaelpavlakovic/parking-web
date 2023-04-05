@@ -1,6 +1,8 @@
 // react imports
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { selectUser } from "../store/user/userSlice";
+import { selectCameras } from "../store/camera/cameraSlice";
 
 // component imports
 import Navigation from "../components/Navigation";
@@ -11,24 +13,23 @@ var _ = require("lodash");
 
 const Profile = () => {
   const token = JSON.parse(localStorage.getItem("token"));
-  const userId = useSelector(state => state.user.user?.id);
-  const userEmail = useSelector(state => state.user.user?.email);
-  const cameras = useSelector(state => state.camera.cameraData);
+  const user = useSelector(selectUser);
+  const cameras = useSelector(selectCameras);
   const [userCameras, setUserCameras] = useState([]);
 
   useEffect(() => {
     if (cameras) {
-      const currentUserCameras = _.filter(cameras, { userId: userId });
+      const currentUserCameras = _.filter(cameras, { userId: user?.id });
       setUserCameras(currentUserCameras);
     }
-  }, [cameras, userId]);
+  }, [cameras, user]);
 
   return (
     <div>
       <Navigation token={token} />
       <Container className="mt-4">
         <h1>Profile Page</h1>
-        <p>Logged in as: {userEmail}</p>
+        <p>Logged in as: {user?.email}</p>
         <h2 className="mt-5">All available cameras:</h2>
         <hr />
         <div className="d-flex justify-content-between flex-wrap">

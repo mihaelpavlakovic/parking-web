@@ -1,7 +1,12 @@
 // react imports
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getCameras } from "../store/camera/cameraActions";
+import { selectUserRequestStatus, selectUser } from "../store/user/userSlice";
+import {
+  selectCameras,
+  selectServerResponseMessage,
+} from "../store/camera/cameraSlice";
 
 // bootstrap imports
 import { Container, Placeholder } from "react-bootstrap";
@@ -15,14 +20,13 @@ import { Stage, Layer, Line, Text } from "react-konva";
 var _ = require("lodash");
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
   const [currentImages, setCurrentImages] = useState([]);
   const [parkingLocations, setParkingLocations] = useState([]);
   const token = JSON.parse(localStorage.getItem("token"));
-  const userEmail = useSelector(state => state.user.user?.email);
-  const userId = useSelector(state => state.user.user?.id);
-  const getStatus = useSelector(state => state.user.getUserStatus);
-  const cameras = useSelector(state => state.camera.cameraData);
+  const user = useSelector(selectUser);
+  const userRequestStatus = useSelector(selectUserRequestStatus);
+  const cameras = useSelector(selectCameras);
+  const serverResponseMessage = useSelector(selectServerResponseMessage);
   const [userCameras, setUserCameras] = useState([]);
   const [size, setSize] = useState({ x: null, y: null });
 
@@ -54,60 +58,60 @@ const Dashboard = () => {
   const scaleY = size.y / 360;
 
   useEffect(() => {
-    dispatch(getCameras(token));
-  }, [dispatch, token]);
+    getCameras(token);
+  }, [token]);
 
   useEffect(() => {
     if (cameras) {
-      const currentUserCameras = _.filter(cameras, { userId: userId });
+      const currentUserCameras = _.filter(cameras, { userId: user?.id });
       setUserCameras(currentUserCameras);
     }
-  }, [cameras, userId]);
+  }, [cameras, user]);
 
   useEffect(() => {
-    const sseConnections = userCameras.map(userCamera => {
-      const sse = new EventSource(
-        `http://3.253.53.168:5050/rest-api/v1/stream?cameraId=${userCamera.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    if (userCameras.length !== 0) {
+      const sseConnections = userCameras.map(userCamera => {
+        const sse = new EventSource(
+          `http://3.253.53.168:5050/rest-api/v1/stream?cameraId=${userCamera.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        function getRealtimeData(data) {
+          // console.log(data);
+          setCurrentImages(prevImages => ({
+            ...prevImages,
+            [userCamera.id]: data.occupancy.originalImage,
+          }));
+          setParkingLocations(prevSpots => ({
+            ...prevSpots,
+            [userCamera.id]: data.occupancy.data.spots,
+          }));
         }
-      );
-      function getRealtimeData(data) {
-        // console.log(data);
-        setCurrentImages(prevImages => ({
-          ...prevImages,
-          [userCamera.id]: data.occupancy.originalImage,
-        }));
-        setParkingLocations(prevSpots => ({
-          ...prevSpots,
-          [userCamera.id]: data.occupancy.data.spots,
-        }));
-      }
-      sse.onmessage = e => getRealtimeData(JSON.parse(e.data));
-      sse.onerror = () => {
-        sse.close();
+        sse.onmessage = e => getRealtimeData(JSON.parse(e.data));
+        sse.onerror = () => {
+          sse.close();
+        };
+        return sse;
+      });
+      Promise.all(sseConnections).then(() => {
+        console.log("All SSE connections established!");
+      });
+
+      return () => {
+        sseConnections.forEach(sse => sse.close());
       };
-      return sse;
-    });
-
-    Promise.all(sseConnections).then(() => {
-      console.log("All SSE connections established!");
-    });
-
-    return () => {
-      sseConnections.forEach(sse => sse.close());
-    };
-  }, [token, userCameras]);
+    }
+  }, [userCameras, token]);
 
   let content;
-  if (getStatus === "loading") {
+  if (userRequestStatus === "loading") {
     content = (
       <>
         <Placeholder className="mt-4 d-flex flex-column" animation="wave">
           <Placeholder className="mb-2" xs={5} style={{ height: "32pt" }} />
-          <Placeholder className="mb-3" xs={6} style={{ height: "15pt" }} />
         </Placeholder>
         <Container className="ratio ratio-16x9">
           <Placeholder animation="wave">
@@ -116,11 +120,10 @@ const Dashboard = () => {
         </Container>
       </>
     );
-  } else if (getStatus === "succeeded") {
+  } else if (userRequestStatus === "succeeded") {
     content = (
       <>
-        <h1 className="mt-4">Dashboard</h1>
-        {userEmail !== null && <p>Logged in as {userEmail}</p>}
+        <h1 className="mt-4">Live Cameras:</h1>
         {currentImages.length === 0
           ? _.map(userCameras, (userCamera, index) => {
               return (
@@ -206,8 +209,8 @@ const Dashboard = () => {
             })}
       </>
     );
-  } else if (getStatus === "failed") {
-    content = <p>Error</p>;
+  } else if (userRequestStatus === "failed") {
+    content = <p>{`Error: ${serverResponseMessage}`}</p>;
   }
 
   return (

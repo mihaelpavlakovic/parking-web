@@ -6,60 +6,65 @@ export const userSlice = createSlice({
   initialState: {
     token: null,
     user: null,
-    message: "",
-    status: "idle",
-    getUserStatus: "idle",
-    error: false,
+    serverResponseError: false,
+    serverResponseMessage: "",
+    tokenRequestStatus: "idle",
+    userRequestStatus: "idle",
   },
   reducers: {
-    LOGIN: (state, action) => {
-      state.token = action.payload.userToken;
+    LOGIN: (state, { payload }) => {
+      state.token = payload.token;
     },
-    SET_USER: (state, action) => {
-      state.user = action.payload.userData;
+    SET_USER: (state, { payload }) => {
+      state.user = payload.userData;
     },
     LOGOUT: state => {
       localStorage.removeItem("token");
       state.token = null;
-      state.message = "";
-      state.error = false;
-      state.status = "idle";
-      state.getUserStatus = "idle";
+      state.serverResponseMessage = "";
+      state.serverResponseError = false;
+      state.tokenRequestStatus = "idle";
+      state.userRequestStatus = "idle";
     },
   },
   extraReducers(builder) {
     builder
-      .addCase(login.pending, (state, action) => {
-        state.status = "loading";
+      .addCase(login.pending, state => {
+        state.tokenRequestStatus = "loading";
       })
-      .addCase(login.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        // Add any fetched posts to the array
-        localStorage.setItem("token", JSON.stringify(action.payload.userToken));
-        state.token = action.payload.userToken;
-        state.message = action.payload.message;
-        state.error = action.payload.error;
+      .addCase(login.fulfilled, (state, { payload }) => {
+        state.tokenRequestStatus = "succeeded";
+        localStorage.setItem("token", JSON.stringify(payload.token));
+        state.token = payload.token;
+        state.serverResponseMessage = payload.serverResponseMessage;
+        state.serverResponseError = payload.serverResponseError;
       })
-      .addCase(login.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+      .addCase(login.rejected, (state, { payload }) => {
+        state.tokenRequestStatus = "failed";
+        state.serverResponseError = payload.serverResponseMessage;
       })
-      .addCase(getUserData.pending, (state, action) => {
-        state.getUserStatus = "loading";
+      .addCase(getUserData.pending, state => {
+        state.userRequestStatus = "loading";
       })
-      .addCase(getUserData.fulfilled, (state, action) => {
-        state.getUserStatus = "succeeded";
-        // Add any fetched posts to the array
-        state.user = action.payload.userData;
+      .addCase(getUserData.fulfilled, (state, { payload }) => {
+        state.userRequestStatus = "succeeded";
+        state.user = payload.userData;
       })
-      .addCase(getUserData.rejected, (state, action) => {
-        state.getUserStatus = "failed";
-        state.error = action.error.message;
+      .addCase(getUserData.rejected, (state, { payload }) => {
+        state.userRequestStatus = "failed";
+        state.serverResponseError = payload.serverResponseMessage;
       });
   },
 });
 
-// Action creators are generated for each case reducer function
+export const selectUser = state => state.user.user;
+export const selectServerResponseError = state =>
+  state.user.serverResponseError;
+export const selectServerResponseMessage = state =>
+  state.user.serverResponseMessage;
+export const selectTokenRequestStatus = state => state.user.tokenRequestStatus;
+export const selectUserRequestStatus = state => state.user.userRequestStatus;
+
 export const { LOGIN, SET_USER, LOGOUT } = userSlice.actions;
 
 export default userSlice.reducer;

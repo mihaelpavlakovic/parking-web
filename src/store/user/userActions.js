@@ -17,16 +17,16 @@ export const login = createAsyncThunk(
 
     if (response.data.error) {
       return {
-        userToken: null,
-        message: response.data.message,
-        error: response.data.error,
+        token: null,
+        serverResponseMessage: response.data.message,
+        serverResponseError: response.data.error,
       };
     }
 
     return {
-      userToken: response.data.data.token,
-      message: response.data.message,
-      error: response.data.error,
+      token: response.data.data.token,
+      serverResponseMessage: response.data.message,
+      serverResponseError: response.data.error,
     };
   }
 );
