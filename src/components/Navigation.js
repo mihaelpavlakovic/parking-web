@@ -17,8 +17,8 @@ const Navigation = props => {
   const dispatch = useDispatch();
 
   const logoutHandler = () => {
-    dispatch(LOGOUT());
     dispatch(REMOVE_DATA());
+    dispatch(LOGOUT());
     setRedirect(true);
   };
 
@@ -56,7 +56,7 @@ const Navigation = props => {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" style={{ height: "6dvh" }}>
+      <Navbar bg="dark" variant="dark" style={{ height: "8dvh" }}>
         <Container>
           <Navbar.Brand>Parking API</Navbar.Brand>
           <Nav>{content}</Nav>

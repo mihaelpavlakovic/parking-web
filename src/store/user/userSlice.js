@@ -50,9 +50,8 @@ export const userSlice = createSlice({
         state.userRequestStatus = "succeeded";
         state.user = payload.userData;
       })
-      .addCase(getUserData.rejected, (state, { payload }) => {
+      .addCase(getUserData.rejected, state => {
         state.userRequestStatus = "failed";
-        state.serverResponseError = payload.serverResponseMessage;
       });
   },
 });

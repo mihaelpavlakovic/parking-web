@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // bootstrap imports
-import { Container, Button, Alert } from "react-bootstrap";
+import { Container, Button, Alert, Image } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 // component imports
@@ -11,6 +11,7 @@ import Navigation from "../components/Navigation";
 import CardItem from "../utils/CardItem";
 import FormItem from "../utils/FormItem";
 import backgroundImage from "../assets/parking-background.png";
+import parkingLogo from "../assets/parking-logo.png";
 
 // store imports
 import { login } from "../store/user/userActions";
@@ -73,9 +74,12 @@ const Login = () => {
           backgroundPosition: "center center",
         }}
       >
-        <Container style={{ height: "94dvh" }}>
+        <Container style={{ height: "92dvh" }}>
           <div className="row h-100">
             <div className="col-12 col-md-10 col-lg-8 col-xl-6 m-auto">
+              <div className="text-center w-100">
+                <Image src={parkingLogo} style={{ width: "15rem" }} />
+              </div>
               <CardItem
                 title="Login"
                 subtitle="Please login to proceed to the dashboard"
