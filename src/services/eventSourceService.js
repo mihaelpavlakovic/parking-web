@@ -27,5 +27,6 @@ export function removeEventSource(id) {
 
   const eventSource = eventSources[id];
   eventSource.close();
+  console.log("Connection closed");
   delete eventSources[id];
 }

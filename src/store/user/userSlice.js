@@ -35,7 +35,7 @@ export const userSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, { payload }) => {
         state.tokenRequestStatus = "succeeded";
-        setHeaders(payload.token.token);
+        setHeaders(payload.token?.token);
         state.serverResponseMessage = payload.serverResponseMessage;
         state.serverResponseError = payload.serverResponseError;
       })
