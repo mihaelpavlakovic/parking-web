@@ -1,8 +1,8 @@
 // react imports
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getCameras, startCameraUpdates } from "../store/camera/cameraActions";
-import { selectUserRequestStatus, selectUser } from "../store/user/userSlice";
+import { useSelector } from "react-redux";
+import { getCameras } from "../store/camera/cameraActions";
+import { selectUserRequestStatus } from "../store/user/userSlice";
 import {
   selectCameras,
   selectServerResponseMessage,
@@ -19,23 +19,13 @@ import ParkingCamera from "../utils/ParkingCamera";
 var _ = require("lodash");
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
-  const token = JSON.parse(localStorage.getItem("token"));
-  const user = useSelector(selectUser);
   const userRequestStatus = useSelector(selectUserRequestStatus);
   const cameras = useSelector(selectCameras);
   const serverResponseMessage = useSelector(selectServerResponseMessage);
 
   useEffect(() => {
-    getCameras(token);
-  }, [token]);
-
-  useEffect(() => {
-    if (cameras) {
-      console.log("useEffect ~ cameras:", cameras);
-      dispatch(startCameraUpdates(cameras));
-    }
-  }, [cameras, user, dispatch]);
+    getCameras();
+  }, []);
 
   let content;
   if (userRequestStatus === "loading") {
@@ -78,7 +68,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <Navigation token={token} />
+      <Navigation />
       <div className="w-full h-full d-flex flex-column overflow-hidden">
         <Container>{content}</Container>
       </div>

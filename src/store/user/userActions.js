@@ -2,43 +2,34 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 // library imports
-import axios from "axios";
+import { get, post } from "../../functions/restClient";
 
 export const login = createAsyncThunk(
   "users/LOGIN",
   async ({ email, password }) => {
-    const response = await axios.post(
-      "http://3.253.53.168:5050/rest-api/v1/users/login",
-      {
-        email: email,
-        password: password,
-      }
-    );
+    const response = await post("users/login", {
+      email: email,
+      password: password,
+    });
 
-    if (response.data.error) {
+    if (response.error) {
       return {
         token: null,
-        serverResponseMessage: response.data.message,
-        serverResponseError: response.data.error,
+        serverResponseMessage: response.message,
+        serverResponseError: response.error,
       };
     }
 
     return {
-      token: response.data.data.token,
-      serverResponseMessage: response.data.message,
-      serverResponseError: response.data.error,
+      token: response.data,
+      serverResponseMessage: response.message,
+      serverResponseError: response.error,
     };
   }
 );
 
-export const getUserData = createAsyncThunk("users/SET_USER", async token => {
-  const response = await axios.get(
-    "http://3.253.53.168:5050/rest-api/v1/users/current",
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+export const getUserData = createAsyncThunk("users/SET_USER", async _ => {
+  const response = await get("users/current");
 
-  // if(response.data.error) return
-  return { userData: response.data.data };
+  return { userData: response.data };
 });

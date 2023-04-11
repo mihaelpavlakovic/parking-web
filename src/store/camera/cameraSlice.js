@@ -29,7 +29,6 @@ export const cameraSlice = createSlice({
       }
     },
     startUpdates: (state, { payload }) => {
-      // console.log(payload.camera);
       const { cameraId, occupancy } = payload.camera;
       state.cameras[cameraId] = { ...state.cameras[cameraId], ...occupancy };
     },

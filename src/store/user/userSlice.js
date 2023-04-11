@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getUserData, login } from "./userActions";
+import { setHeaders } from "../../functions/restClient";
 
 export const userSlice = createSlice({
   name: "user",
@@ -34,8 +35,7 @@ export const userSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, { payload }) => {
         state.tokenRequestStatus = "succeeded";
-        localStorage.setItem("token", JSON.stringify(payload.token));
-        state.token = payload.token;
+        setHeaders(payload.token.token);
         state.serverResponseMessage = payload.serverResponseMessage;
         state.serverResponseError = payload.serverResponseError;
       })

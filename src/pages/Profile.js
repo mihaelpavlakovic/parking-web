@@ -12,13 +12,12 @@ import { Container, Image } from "react-bootstrap";
 var _ = require("lodash");
 
 const Profile = () => {
-  const token = JSON.parse(localStorage.getItem("token"));
   const user = useSelector(selectUser);
   const cameras = useSelector(selectCameras);
 
   return (
     <div>
-      <Navigation token={token} />
+      <Navigation />
       <Container className="mt-4">
         <h1>Profile Page</h1>
         <p>Logged in as: {user?.email}</p>

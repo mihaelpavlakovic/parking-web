@@ -12,7 +12,8 @@ import Navbar from "react-bootstrap/Navbar";
 import { LOGOUT } from "../store/user/userSlice";
 import { REMOVE_DATA } from "../store/camera/cameraSlice";
 
-const Navigation = props => {
+const Navigation = () => {
+  const token = localStorage.getItem("token");
   const [redirect, setRedirect] = useState(false);
   const dispatch = useDispatch();
 
@@ -27,7 +28,7 @@ const Navigation = props => {
   }
 
   let content;
-  if (props.token && !redirect) {
+  if (token && !redirect) {
     content = (
       <>
         <Nav.Link as={Link} to="/">

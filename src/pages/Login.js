@@ -75,7 +75,7 @@ const Login = () => {
         }}
       >
         <Container style={{ height: "92dvh" }}>
-          <div className="row h-100">
+          <div className="row">
             <div className="col-12 col-md-10 col-lg-8 col-xl-6 m-auto">
               <div className="text-center w-100">
                 <Image src={parkingLogo} style={{ width: "15rem" }} />

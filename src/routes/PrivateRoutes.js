@@ -7,7 +7,7 @@ import { getCameras } from "../store/camera/cameraActions";
 import { LOGOUT } from "../store/user/userSlice";
 
 const PrivateRoutes = () => {
-  const token = JSON.parse(localStorage.getItem("token"));
+  const token = localStorage.getItem("token");
   const dispatch = useDispatch();
 
   useEffect(() => {
