@@ -82,11 +82,7 @@ const Login = () => {
                 marginRight: "-10px",
               }}
             >
-              <img
-                src={parkingLot}
-                alt="Parking"
-                style={{ width: "110%", height: "100%" }}
-              />
+              <img src={parkingLot} alt="Parking" className="h-100 w-110" />
             </div>
             <div
               className="col-12 col-md-12 col-lg-6 px-5 py-4"
@@ -95,18 +91,16 @@ const Login = () => {
               <div className="h-100 d-flex flex-column justify-content-center gap-3">
                 <div>
                   <h1
-                    className="text-white font-weight-bold"
+                    className="text-white fw-bold"
                     style={{ fontFamily: "Fira Sans", fontSize: "48px" }}
                   >
                     Parking API
                   </h1>
                   <p
-                    className="text-white font-italic"
+                    className="text-white fw-normal fst-italic"
                     style={{
                       fontFamily: "Fira Sans",
                       fontSize: "16px",
-                      fontWeight: "400",
-                      fontStyle: "italic",
                     }}
                   >
                     "Park smart. Park with ParKing."
@@ -119,11 +113,10 @@ const Login = () => {
                 )}
                 <form onSubmit={handleSubmit}>
                   <h2
-                    className="text-white font-weight-bold"
+                    className="text-white fw-normal"
                     style={{
                       fontFamily: "Chivo",
                       fontSize: "32px",
-                      fontWeight: "400",
                     }}
                   >
                     Login
@@ -152,13 +145,10 @@ const Login = () => {
                         tokenRequestStatus === "succeeded" &&
                         true
                       }
-                      className="align-self-start w-100 w-lg-25"
+                      className="align-self-start w-100 w-lg-25 text-uppercase fw-bold border-0"
                       style={{
                         backgroundColor: "#43cd99",
                         borderRadius: "10px",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        border: "none",
                         fontFamily: "Chivo",
                         padding: "15px",
                         boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.25)",
@@ -176,7 +166,7 @@ const Login = () => {
                   </div>
                 </form>
                 <p
-                  className="text-white"
+                  className="text-white fw-light"
                   style={{ fontFamily: "Chivo", color: "#fcfcfc" }}
                 >
                   Need an account? Register{" "}
