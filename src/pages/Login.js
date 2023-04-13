@@ -1,17 +1,15 @@
 // react imports
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // bootstrap imports
-import { Container, Button, Alert, Image } from "react-bootstrap";
+import { Container, Button, Alert } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 // component imports
-import Navigation from "../components/Navigation";
-import CardItem from "../utils/CardItem";
 import FormItem from "../utils/FormItem";
-import backgroundImage from "../assets/parking-background.png";
-import parkingLogo from "../assets/parking-logo.png";
+import parkingLot from "../assets/parking-lot.svg";
+import SpinnerItem from "../utils/SpinnerItem";
 
 // store imports
 import { login } from "../store/user/userActions";
@@ -53,7 +51,7 @@ const Login = () => {
   let content;
   const tokenRequestStatus = useSelector(selectTokenRequestStatus);
   if (tokenRequestStatus === "failed") {
-    content = `Error: ${serverResponseError}`;
+    content = `Error: ${serverResponseMessage}`;
   } else if (tokenRequestStatus === "succeeded" && serverResponseError) {
     content = `Error: ${serverResponseMessage}`;
   }
@@ -66,46 +64,85 @@ const Login = () => {
 
   return (
     <>
-      <Navigation />
-      <main
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center center",
-        }}
-      >
-        <Container style={{ height: "92dvh" }}>
-          <div className="row">
-            <div className="col-12 col-md-10 col-lg-8 col-xl-6 m-auto">
-              <div className="text-center w-100">
-                <Image src={parkingLogo} style={{ width: "15rem" }} />
-              </div>
-              <CardItem
-                title="Login"
-                subtitle="Please login to proceed to the dashboard"
-                text=""
-              >
+      <main style={{ backgroundColor: "#e1e1e1" }}>
+        <Container
+          style={{ height: "100vh" }}
+          className="d-flex align-items-center justify-content-center"
+        >
+          <div
+            className="row w-100"
+            style={{ filter: "drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.14))" }}
+          >
+            <div
+              className="d-none d-lg-block col-lg-6"
+              style={{
+                backgroundColor: "#C0C0C0",
+                overflow: "hidden",
+                borderRadius: "10px 0 0 10px",
+                marginRight: "-10px",
+              }}
+            >
+              <img
+                src={parkingLot}
+                alt="Parking"
+                style={{ width: "110%", height: "100%" }}
+              />
+            </div>
+            <div
+              className="col-12 col-md-12 col-lg-6 px-5 py-4"
+              style={{ backgroundColor: "#7495FF", borderRadius: "10px" }}
+            >
+              <div className="h-100 d-flex flex-column justify-content-center gap-3">
+                <div>
+                  <h1
+                    className="text-white font-weight-bold"
+                    style={{ fontFamily: "Fira Sans", fontSize: "48px" }}
+                  >
+                    Parking API
+                  </h1>
+                  <p
+                    className="text-white font-italic"
+                    style={{
+                      fontFamily: "Fira Sans",
+                      fontSize: "16px",
+                      fontWeight: "400",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    "Park smart. Park with ParKing."
+                  </p>
+                </div>
                 {content && (
                   <Alert variant="danger">
                     <span>{content}</span>
                   </Alert>
                 )}
                 <form onSubmit={handleSubmit}>
-                  <FormItem
-                    labelText="Enter email"
-                    inputType="email"
-                    formId="emailInput"
-                    formValue={formEmailInput}
-                    handleChangeValue={handleEmailChange}
-                  />
-                  <FormItem
-                    labelText="Enter password"
-                    inputType="password"
-                    formId="passwordInput"
-                    formValue={formPasswordInput}
-                    handleChangeValue={handlePasswordChange}
-                  />
-                  <div className="d-flex justify-content-center gap-2">
+                  <h2
+                    className="text-white font-weight-bold"
+                    style={{
+                      fontFamily: "Chivo",
+                      fontSize: "32px",
+                      fontWeight: "400",
+                    }}
+                  >
+                    Login
+                  </h2>
+                  <div className="d-flex flex-column">
+                    <FormItem
+                      labelText="Enter email"
+                      inputType="email"
+                      formId="emailInput"
+                      formValue={formEmailInput}
+                      handleChangeValue={handleEmailChange}
+                    />
+                    <FormItem
+                      labelText="Enter password"
+                      inputType="password"
+                      formId="passwordInput"
+                      formValue={formPasswordInput}
+                      handleChangeValue={handlePasswordChange}
+                    />
                     <Button
                       type="submit"
                       variant="primary"
@@ -115,25 +152,40 @@ const Login = () => {
                         tokenRequestStatus === "succeeded" &&
                         true
                       }
+                      className="align-self-start w-100 w-lg-25"
+                      style={{
+                        backgroundColor: "#43cd99",
+                        borderRadius: "10px",
+                        fontWeight: "bold",
+                        textTransform: "uppercase",
+                        border: "none",
+                        fontFamily: "Chivo",
+                        padding: "15px",
+                        boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.25)",
+                      }}
                     >
-                      {tokenRequestStatus === "loading"
-                        ? "Loading..."
-                        : "Login"}
-                    </Button>
-                    {tokenRequestStatus !== "loading" &&
-                      tokenRequestStatus !== "succeeded" && (
-                        <Button
-                          type="button"
-                          variant="outline-primary"
-                          size="md"
-                          onClick={resetHandler}
-                        >
-                          Reset
-                        </Button>
+                      {tokenRequestStatus === "loading" ? (
+                        <>
+                          <SpinnerItem spinnerSize="sm" />
+                          <span className="ps-2">Loading...</span>
+                        </>
+                      ) : (
+                        "Login"
                       )}
+                    </Button>
                   </div>
                 </form>
-              </CardItem>
+                <p
+                  className="text-white"
+                  style={{ fontFamily: "Chivo", color: "#fcfcfc" }}
+                >
+                  Need an account? Register{" "}
+                  <Link to="/register" style={{ color: "#fcfcfc" }}>
+                    here
+                  </Link>
+                  .
+                </p>
+              </div>
             </div>
           </div>
         </Container>

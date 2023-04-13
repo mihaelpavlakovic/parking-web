@@ -11,6 +11,10 @@ const FormItem = props => {
           placeholder={props.labelText}
           value={props.formValue}
           onChange={props.handleChangeValue}
+          style={{
+            borderRadius: "10px",
+            boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.25)",
+          }}
         />
         <label htmlFor={props.formId}>{props.labelText}</label>
       </div>
