@@ -43,7 +43,9 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
 
   return (
     <React.Fragment>
-      <h4>{camera?.name}</h4>
+      <h4 className="fw-normal" style={{ fontFamily: "Chivo" }}>
+        {camera?.name}
+      </h4>
 
       <div className="ratio ratio-16x9 mb-2">
         <Image

@@ -1,6 +1,6 @@
 // react imports
 import React, { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // bootstrap imports
@@ -13,6 +13,7 @@ import { LOGOUT } from "../store/user/userSlice";
 import { REMOVE_DATA } from "../store/camera/cameraSlice";
 
 const Navigation = () => {
+  const location = useLocation();
   const token = localStorage.getItem("token");
   const [redirect, setRedirect] = useState(false);
   const dispatch = useDispatch();
@@ -31,10 +32,22 @@ const Navigation = () => {
   if (token && !redirect) {
     content = (
       <>
-        <Nav.Link as={Link} to="/">
+        <Nav.Link
+          style={{
+            fontWeight: location.pathname === "/" ? "700" : "",
+          }}
+          as={Link}
+          to="/"
+        >
           Home
         </Nav.Link>
-        <Nav.Link as={Link} to="/profile">
+        <Nav.Link
+          style={{
+            fontWeight: location.pathname === "/profile" ? "700" : "",
+          }}
+          as={Link}
+          to="/profile"
+        >
           Profile
         </Nav.Link>
         <Nav.Link as={Link} onClick={logoutHandler}>
@@ -45,10 +58,24 @@ const Navigation = () => {
   } else {
     content = (
       <>
-        <Nav.Link as={Link} to="/login">
+        <Nav.Link
+          className="link text-white"
+          style={{
+            fontWeight: location.pathname === "/login" ? "700" : "",
+          }}
+          as={Link}
+          to="/login"
+        >
           Login
         </Nav.Link>
-        <Nav.Link as={Link} to="/register">
+        <Nav.Link
+          className="link link text-white"
+          style={{
+            fontWeight: location.pathname === "/register" ? "700" : "",
+          }}
+          as={Link}
+          to="/register"
+        >
           Register
         </Nav.Link>
       </>
@@ -57,10 +84,19 @@ const Navigation = () => {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" style={{ height: "8dvh" }}>
+      <Navbar
+        variant="dark"
+        style={{
+          height: "4.5rem",
+          backgroundColor: "#7495FF",
+          filter: "drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.14))",
+        }}
+      >
         <Container>
-          <Navbar.Brand>Parking API</Navbar.Brand>
-          <Nav>{content}</Nav>
+          <Navbar.Brand className="fw-bold" style={{ fontFamily: "Fira Sans" }}>
+            Parking API
+          </Navbar.Brand>
+          <Nav style={{ fontFamily: "Chivo" }}>{content}</Nav>
         </Container>
       </Navbar>
     </>

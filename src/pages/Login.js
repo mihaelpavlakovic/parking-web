@@ -88,7 +88,7 @@ const Login = () => {
               className="col-12 col-md-12 col-lg-6 px-5 py-4"
               style={{ backgroundColor: "#7495FF", borderRadius: "10px" }}
             >
-              <div className="h-100 d-flex flex-column justify-content-center gap-3">
+              <div className="h-100 d-flex flex-column justify-content-center gap-5">
                 <div>
                   <h1
                     className="text-white fw-bold"
@@ -111,70 +111,76 @@ const Login = () => {
                     <span>{content}</span>
                   </Alert>
                 )}
-                <form onSubmit={handleSubmit}>
-                  <h2
-                    className="text-white fw-normal"
-                    style={{
-                      fontFamily: "Chivo",
-                      fontSize: "32px",
-                    }}
-                  >
-                    Login
-                  </h2>
-                  <div className="d-flex flex-column">
-                    <FormItem
-                      labelText="Enter email"
-                      inputType="email"
-                      formId="emailInput"
-                      formValue={formEmailInput}
-                      handleChangeValue={handleEmailChange}
-                    />
-                    <FormItem
-                      labelText="Enter password"
-                      inputType="password"
-                      formId="passwordInput"
-                      formValue={formPasswordInput}
-                      handleChangeValue={handlePasswordChange}
-                    />
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      size="md"
-                      disabled={
-                        tokenRequestStatus === "loading" &&
-                        tokenRequestStatus === "succeeded" &&
-                        true
-                      }
-                      className="align-self-start w-100 w-lg-25 text-uppercase fw-bold border-0"
+                <div className="d-flex flex-column gap-4">
+                  <form onSubmit={handleSubmit}>
+                    <h2
+                      className="text-white fw-normal"
                       style={{
-                        backgroundColor: "#43cd99",
-                        borderRadius: "10px",
                         fontFamily: "Chivo",
-                        padding: "15px",
-                        boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.25)",
+                        fontSize: "32px",
                       }}
                     >
-                      {tokenRequestStatus === "loading" ? (
-                        <>
-                          <SpinnerItem spinnerSize="sm" />
-                          <span className="ps-2">Loading...</span>
-                        </>
-                      ) : (
-                        "Login"
-                      )}
-                    </Button>
-                  </div>
-                </form>
-                <p
-                  className="text-white fw-light"
-                  style={{ fontFamily: "Chivo", color: "#fcfcfc" }}
-                >
-                  Need an account? Register{" "}
-                  <Link to="/register" style={{ color: "#fcfcfc" }}>
-                    here
-                  </Link>
-                  .
-                </p>
+                      Login
+                    </h2>
+                    <div className="d-flex flex-column">
+                      <FormItem
+                        labelText="Enter email"
+                        inputType="email"
+                        formId="emailInput"
+                        formValue={formEmailInput}
+                        handleChangeValue={handleEmailChange}
+                      />
+                      <FormItem
+                        labelText="Enter password"
+                        inputType="password"
+                        formId="passwordInput"
+                        formValue={formPasswordInput}
+                        handleChangeValue={handlePasswordChange}
+                      />
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        size="md"
+                        disabled={
+                          tokenRequestStatus === "loading" &&
+                          tokenRequestStatus === "succeeded" &&
+                          true
+                        }
+                        className="align-self-start w-100 w-lg-25 text-uppercase fw-bold border-0 btn"
+                        style={{
+                          backgroundColor: "#43cd99",
+                          borderRadius: "10px",
+                          fontFamily: "Chivo",
+                          padding: "15px",
+                          boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.25)",
+                        }}
+                      >
+                        {tokenRequestStatus === "loading" ? (
+                          <>
+                            <SpinnerItem spinnerSize="sm" />
+                            <span className="ps-2">Loading...</span>
+                          </>
+                        ) : (
+                          "Login"
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                  <p
+                    className="text-white fw-light"
+                    style={{ fontFamily: "Chivo", color: "#fcfcfc" }}
+                  >
+                    Need an account? Register{" "}
+                    <Link
+                      className="link"
+                      to="/register"
+                      style={{ color: "#fcfcfc" }}
+                    >
+                      here
+                    </Link>
+                    .
+                  </p>
+                </div>
               </div>
             </div>
           </div>

@@ -39,7 +39,9 @@ const Dashboard = () => {
   } else if (userRequestStatus === "succeeded") {
     content = (
       <>
-        <h1 className="mt-4">Live Cameras:</h1>
+        <h1 className="mt-4 fw-bold" style={{ fontFamily: "Fira Sans" }}>
+          Live Cameras:
+        </h1>
         {_.map(cameras, (camera, index) => {
           if (!camera.data) {
             return (
