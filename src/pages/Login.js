@@ -106,12 +106,12 @@ const Login = () => {
                     "Park smart. Park with ParKing."
                   </p>
                 </div>
-                {content && (
-                  <Alert variant="danger">
-                    <span>{content}</span>
-                  </Alert>
-                )}
                 <div className="d-flex flex-column gap-4">
+                  {content && (
+                    <Alert variant="danger">
+                      <span>{content}</span>
+                    </Alert>
+                  )}
                   <form onSubmit={handleSubmit}>
                     <h2
                       className="text-white fw-normal"
