@@ -57,7 +57,7 @@ const Dashboard = () => {
                 key={index}
                 camera={camera}
                 currentImage={camera.originalImage}
-                parkingLocations={camera.data?.spots}
+                parkingLocations={camera.data?.result?.spots}
               />
             );
           }

@@ -13,7 +13,6 @@ var _ = require("lodash");
 
 const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
   const [size, setSize] = useState({ x: null, y: null });
-
   useEffect(() => {
     const checkSize = () => {
       const innerWidth = window.innerWidth;
