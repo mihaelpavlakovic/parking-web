@@ -38,8 +38,8 @@ export const cameraSlice = createSlice({
       state.serverResponseMessage = payload.serverResponseMessage;
     },
     REMOVE_DATA: state => {
-      _.forEach(state.cameras, camera => {
-        removeEventSource(camera.data.id);
+      _.forEach(JSON.parse(JSON.stringify(state.cameras)), camera => {
+        removeEventSource(camera.id);
       });
       state.cameras = null;
       state.serverResponseError = false;
