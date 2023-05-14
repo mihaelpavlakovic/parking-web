@@ -46,7 +46,7 @@ export const startCameraUpdates = createAsyncThunk(
 
       addEventSource(
         camera.id,
-        `${baseURL}stream?cameraId=${camera.id}`,
+        `${baseURL}cameras/stream?cameraId=${camera.id}`,
         handleCameraUpdate,
         handleEventSourceOpen,
         handleEventSourceError

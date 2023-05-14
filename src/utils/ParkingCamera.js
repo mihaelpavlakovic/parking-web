@@ -40,11 +40,24 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
   const scaleX = size.x / 640;
   const scaleY = size.y / 360;
 
+  const freeParkingSpaces = _.size(
+    _.filter(parkingLocations, parkingLocation => !parkingLocation.occupied)
+  );
+  const takenParkingSpaces = _.size(
+    _.filter(parkingLocations, parkingLocation => parkingLocation.occupied)
+  );
+
   return (
     <React.Fragment>
       <h4 className="fw-normal" style={{ fontFamily: "Chivo" }}>
         {camera?.name}
       </h4>
+
+      <div className="d-flex gap-4">
+        <p>Available spaces: {parkingLocations.length}</p>
+        <p>Free parking spaces: {freeParkingSpaces}</p>
+        <p>Taken parking spaces: {takenParkingSpaces}</p>
+      </div>
 
       <div className="ratio ratio-16x9 mb-2">
         <Image
