@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getUserData, login } from "./userActions";
+import { deleteUser, getUserData, login, register } from "./userActions";
 import { setHeaders } from "../../functions/restClient";
 
 export const userSlice = createSlice({
@@ -40,6 +40,30 @@ export const userSlice = createSlice({
         state.serverResponseError = payload.serverResponseError;
       })
       .addCase(login.rejected, (state, { payload }) => {
+        console.log(".addCase ~ payload:", payload);
+        state.tokenRequestStatus = "failed";
+      })
+      .addCase(register.pending, state => {
+        state.tokenRequestStatus = "loading";
+      })
+      .addCase(register.fulfilled, (state, { payload }) => {
+        state.tokenRequestStatus = "succeeded";
+        state.serverResponseMessage = payload.serverResponseMessage;
+        state.serverResponseError = payload.serverResponseError;
+      })
+      .addCase(register.rejected, (state, { payload }) => {
+        console.log(".addCase ~ payload:", payload);
+        state.tokenRequestStatus = "failed";
+      })
+      .addCase(deleteUser.pending, state => {
+        state.tokenRequestStatus = "loading";
+      })
+      .addCase(deleteUser.fulfilled, (state, { payload }) => {
+        state.tokenRequestStatus = "succeeded";
+        state.serverResponseMessage = payload.serverResponseMessage;
+        state.serverResponseError = payload.serverResponseError;
+      })
+      .addCase(deleteUser.rejected, (state, { payload }) => {
         console.log(".addCase ~ payload:", payload);
         state.tokenRequestStatus = "failed";
       })

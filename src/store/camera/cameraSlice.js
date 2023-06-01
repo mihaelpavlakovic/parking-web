@@ -18,6 +18,8 @@ export const cameraSlice = createSlice({
         state.cameras = [];
         state.serverResponseError = cameraData.error;
         state.serverResponseMessage = cameraData.message;
+      } else if (cameraData.lenght === 0) {
+        state.cameras = [];
       } else {
         const camerasObj = cameraData.data.reduce((obj, camera) => {
           obj[camera.id] = camera;

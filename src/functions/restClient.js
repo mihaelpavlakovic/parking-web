@@ -51,4 +51,23 @@ const get = async url => {
   }
 };
 
-export { client, setHeaders, post, get };
+const del = async url => {
+  try {
+    const response = await client.delete(url);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      console.log("Error response:", error.response.data);
+      console.log("Status code:", error.response.status);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.log("No response received");
+    } else {
+      // Something happened in setting up the request that triggered an error
+      console.log("Error setting up request");
+    }
+  }
+};
+
+export { client, setHeaders, post, get, del };

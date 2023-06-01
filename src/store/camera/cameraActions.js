@@ -19,9 +19,15 @@ export const getCameras = createAsyncThunk(
     if (cameraData.error) {
       return cameraData;
     }
-    let currentUserCameras = _.filter(cameraData.data, { userId: user.id });
-    cameraData = { ...cameraData, data: currentUserCameras };
 
+    let currentUserCameras = _.filter(cameraData.data, { userId: user.id });
+
+    if (currentUserCameras.length === 0) {
+      cameraData = [];
+      return cameraData;
+    }
+
+    cameraData = { ...cameraData, data: currentUserCameras };
     thunkAPI.dispatch(updateCamera({ cameraData }));
     thunkAPI.dispatch(startCameraUpdates(cameraData));
     return cameraData;
