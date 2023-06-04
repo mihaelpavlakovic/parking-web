@@ -16,6 +16,7 @@ var _ = require("lodash");
 const Profile = () => {
   const user = useSelector(selectUser);
   const cameras = useSelector(selectCameras);
+  console.log("Profile ~ cameras:", cameras);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -39,9 +40,11 @@ const Profile = () => {
         <p>Logged in as: {user?.email}</p>
         <h2 className="mt-5">All available cameras:</h2>
         <hr />
-        <div className="d-flex justify-content-between flex-wrap">
-          {cameras?.length > 0 &&
+        <div className="d-flex justify-content-between gap-5 flex-wrap flex-md-nowrap">
+          {cameras?.length === 0 && <p>You don't have any cameras.</p>}
+          {cameras &&
             _.map(cameras, (camera, index) => {
+              console.log("Profile ~ camera:", camera);
               return (
                 <div key={index} className="mx-auto">
                   <h5>{camera.name}</h5>
@@ -50,7 +53,6 @@ const Profile = () => {
                 </div>
               );
             })}
-          {cameras?.length === 0 && <p>You don't have any cameras.</p>}
         </div>
         <h2 className="mt-5">Account Control</h2>
         <hr />

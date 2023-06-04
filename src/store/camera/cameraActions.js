@@ -39,7 +39,6 @@ export const startCameraUpdates = createAsyncThunk(
   async (cameras, thunkAPI) => {
     _.forEach(cameras.data, camera => {
       const handleCameraUpdate = camera => {
-        console.log("handleCameraUpdate ~ camera:", camera);
         thunkAPI.dispatch(startUpdates({ camera }));
       };
 

@@ -14,7 +14,7 @@ var _ = require("lodash");
 const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
   const [size, setSize] = useState({ x: null, y: null });
   useEffect(() => {
-    const checkSize = () => {
+    const handleResize = () => {
       const innerWidth = window.innerWidth;
       if (innerWidth < 430) {
         setSize({ x: 320, y: 180 });
@@ -30,11 +30,11 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
     };
 
     if (size.x === null) {
-      checkSize();
+      handleResize();
     }
 
-    window.addEventListener("resize", checkSize);
-    return () => window.removeEventListener("resize", checkSize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [size.x]);
 
   const scaleX = size.x / 640;

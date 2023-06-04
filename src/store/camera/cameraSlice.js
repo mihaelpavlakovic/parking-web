@@ -31,14 +31,8 @@ export const cameraSlice = createSlice({
       }
     },
     startUpdates: (state, { payload }) => {
-      console.log("payload.camera:", payload.camera);
       const { cameraId, occupancy, timestamp } = payload.camera;
-      console.log(
-        "cameraId, occupancy, timestamp:",
-        cameraId,
-        occupancy,
-        timestamp
-      );
+
       state.cameras[cameraId] = {
         ...state.cameras[cameraId],
         ...occupancy,
@@ -76,6 +70,7 @@ export const cameraSlice = createSlice({
       })
       .addCase(addCamera.fulfilled, state => {
         state.cameraRequestStatus = "succeeded";
+        console.log("succeeded");
       })
       .addCase(addCamera.rejected, state => {
         state.cameraRequestStatus = "failed";
