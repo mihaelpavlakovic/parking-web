@@ -45,22 +45,22 @@ const Navigation = () => {
         <Nav.Link
           className="link text-white"
           style={{
-            fontWeight: location.pathname === "/profile" ? "700" : "",
-          }}
-          as={Link}
-          to="/profile"
-        >
-          Profile
-        </Nav.Link>
-        <Nav.Link
-          className="link text-white"
-          style={{
             fontWeight: location.pathname === "/new-camera" ? "700" : "",
           }}
           as={Link}
           to="/new-camera"
         >
           Add Camera
+        </Nav.Link>
+        <Nav.Link
+          className="link text-white"
+          style={{
+            fontWeight: location.pathname === "/profile" ? "700" : "",
+          }}
+          as={Link}
+          to="/profile"
+        >
+          Profile
         </Nav.Link>
         <Nav.Link as={Link} onClick={logoutHandler} className="link text-white">
           Logout

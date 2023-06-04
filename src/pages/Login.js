@@ -114,7 +114,7 @@ const Login = () => {
                   )}
                   <form onSubmit={handleSubmit}>
                     <h2
-                      className="text-white fw-normal"
+                      className="text-white fw-normal mb-3"
                       style={{
                         fontFamily: "Chivo",
                         fontSize: "32px",
@@ -122,7 +122,7 @@ const Login = () => {
                     >
                       Login
                     </h2>
-                    <div className="d-flex flex-column">
+                    <div className="d-flex flex-column gap-3">
                       <FormItem
                         labelText="Enter email"
                         inputType="email"
