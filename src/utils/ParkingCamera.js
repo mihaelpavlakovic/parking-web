@@ -61,7 +61,6 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
 
       <div className="ratio ratio-16x9 mb-2">
         <Image
-          id="imageContain"
           style={{ width: `${size.x}px`, height: `${size.y}px` }}
           src={`data:image/png;base64, ${currentImage}`}
           alt="Parking lot feed"

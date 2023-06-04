@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getCameras } from "./cameraActions";
+import { addCamera, getCameras } from "./cameraActions";
 import { removeEventSource } from "../../services/eventSourceService";
 var _ = require("lodash");
 
@@ -31,7 +31,14 @@ export const cameraSlice = createSlice({
       }
     },
     startUpdates: (state, { payload }) => {
+      console.log("payload.camera:", payload.camera);
       const { cameraId, occupancy, timestamp } = payload.camera;
+      console.log(
+        "cameraId, occupancy, timestamp:",
+        cameraId,
+        occupancy,
+        timestamp
+      );
       state.cameras[cameraId] = {
         ...state.cameras[cameraId],
         ...occupancy,
@@ -62,6 +69,15 @@ export const cameraSlice = createSlice({
         state.cameraRequestStatus = "succeeded";
       })
       .addCase(getCameras.rejected, state => {
+        state.cameraRequestStatus = "failed";
+      })
+      .addCase(addCamera.pending, state => {
+        state.cameraRequestStatus = "loading";
+      })
+      .addCase(addCamera.fulfilled, state => {
+        state.cameraRequestStatus = "succeeded";
+      })
+      .addCase(addCamera.rejected, state => {
         state.cameraRequestStatus = "failed";
       });
   },

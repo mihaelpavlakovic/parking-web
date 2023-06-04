@@ -4,7 +4,7 @@ import { startUpdates, updateCamera } from "./cameraSlice";
 import { addEventSource } from "../../services/eventSourceService";
 
 // library imports
-import { get } from "../../functions/restClient";
+import { get, post } from "../../functions/restClient";
 import { baseURL } from "../../enviroment";
 var _ = require("lodash");
 
@@ -39,6 +39,7 @@ export const startCameraUpdates = createAsyncThunk(
   async (cameras, thunkAPI) => {
     _.forEach(cameras.data, camera => {
       const handleCameraUpdate = camera => {
+        console.log("handleCameraUpdate ~ camera:", camera);
         thunkAPI.dispatch(startUpdates({ camera }));
       };
 
@@ -58,5 +59,33 @@ export const startCameraUpdates = createAsyncThunk(
         handleEventSourceError
       );
     });
+  }
+);
+
+export const addCamera = createAsyncThunk(
+  "camera/addCamera",
+  async ({ name, sourceURL, parkingSpaces }, thunkAPI) => {
+    const userId = thunkAPI.getState().user.user.id;
+    console.log("userId:", userId);
+    const response = await post("cameras/create", {
+      sourceURL,
+      name,
+      parkingSpaces,
+      userId,
+    });
+
+    if (response.error) {
+      return {
+        token: null,
+        serverResponseMessage: response.message,
+        serverResponseError: response.error,
+      };
+    }
+
+    return {
+      token: response.data,
+      serverResponseMessage: response.message,
+      serverResponseError: response.error,
+    };
   }
 );

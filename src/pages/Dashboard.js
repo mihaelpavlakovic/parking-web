@@ -21,6 +21,7 @@ var _ = require("lodash");
 const Dashboard = () => {
   const userRequestStatus = useSelector(selectUserRequestStatus);
   const cameras = useSelector(selectCameras);
+  console.log("Dashboard ~ cameras:", cameras);
   const serverResponseMessage = useSelector(selectServerResponseMessage);
 
   useEffect(() => {
