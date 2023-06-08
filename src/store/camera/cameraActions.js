@@ -1,15 +1,18 @@
 // react imports
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { startUpdates, updateCamera } from "./cameraSlice";
-import { addEventSource } from "../../services/eventSourceService";
+import { startUpdates, updateCameraData } from "./cameraSlice";
+import {
+  addEventSource,
+  removeEventSource,
+} from "../../services/eventSourceService";
 
 // library imports
-import { get, post } from "../../functions/restClient";
+import { del, get, post, putReq } from "../../functions/restClient";
 import { baseURL } from "../../enviroment";
 var _ = require("lodash");
 
 export const getCameras = createAsyncThunk(
-  "camera/updateCamera",
+  "camera/getCamera",
   async (__, thunkAPI) => {
     const response = await get("cameras");
 
@@ -28,8 +31,9 @@ export const getCameras = createAsyncThunk(
     }
 
     cameraData = { ...cameraData, data: currentUserCameras };
-    thunkAPI.dispatch(updateCamera({ cameraData }));
+    thunkAPI.dispatch(updateCameraData({ cameraData }));
     thunkAPI.dispatch(startCameraUpdates(cameraData));
+
     return cameraData;
   }
 );
@@ -65,7 +69,6 @@ export const addCamera = createAsyncThunk(
   "camera/addCamera",
   async ({ name, sourceURL, parkingSpaces }, thunkAPI) => {
     const userId = thunkAPI.getState().user.user.id;
-    console.log("userId:", userId);
     const response = await post("cameras/create", {
       sourceURL,
       name,
@@ -82,6 +85,58 @@ export const addCamera = createAsyncThunk(
     }
 
     return {
+      token: response.data,
+      serverResponseMessage: response.message,
+      serverResponseError: response.error,
+    };
+  }
+);
+
+export const updateCamera = createAsyncThunk(
+  "camera/updateCamera",
+  async ({ id, name, sourceURL, parkingSpaces }, thunkAPI) => {
+    const userId = thunkAPI.getState().user.user.id;
+    const response = await putReq("cameras/update", {
+      id,
+      sourceURL,
+      name,
+      parkingSpaces,
+      userId,
+    });
+    if (response.error) {
+      return {
+        camera: null,
+        serverResponseMessage: response.message,
+        serverResponseError: response.error,
+      };
+    }
+
+    return {
+      camera: response.data[1],
+      serverResponseMessage: response.message,
+      serverResponseError: response.error,
+    };
+  }
+);
+
+export const removeCamera = createAsyncThunk(
+  "camera/removeCamera",
+  async (cameraId, thunkAPI) => {
+    console.log("cameraId:", cameraId);
+    removeEventSource(cameraId);
+    const response = await del(`cameras/remove?cameraId=${cameraId}`);
+    console.log("response:", response);
+
+    if (response.error) {
+      return {
+        token: null,
+        serverResponseMessage: response.message,
+        serverResponseError: response.error,
+      };
+    }
+
+    return {
+      cameraId,
       token: response.data,
       serverResponseMessage: response.message,
       serverResponseError: response.error,

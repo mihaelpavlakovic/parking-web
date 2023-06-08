@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addCamera, getCameras } from "./cameraActions";
+import {
+  addCamera,
+  getCameras,
+  removeCamera,
+  updateCamera,
+} from "./cameraActions";
 import { removeEventSource } from "../../services/eventSourceService";
 var _ = require("lodash");
 
@@ -12,7 +17,7 @@ export const cameraSlice = createSlice({
     cameraRequestStatus: "idle",
   },
   reducers: {
-    updateCamera: (state, { payload }) => {
+    updateCameraData: (state, { payload }) => {
       const { cameraData } = payload;
       if (cameraData.error) {
         state.cameras = [];
@@ -21,11 +26,8 @@ export const cameraSlice = createSlice({
       } else if (cameraData.lenght === 0) {
         state.cameras = [];
       } else {
-        const camerasObj = cameraData.data.reduce((obj, camera) => {
-          obj[camera.id] = camera;
-          return obj;
-        }, {});
-        state.cameras = camerasObj;
+        const camerasArr = cameraData.data.map(camera => camera);
+        state.cameras = camerasArr;
         state.serverResponseError = cameraData.error;
         state.serverResponseMessage = cameraData.message;
       }
@@ -33,11 +35,12 @@ export const cameraSlice = createSlice({
     startUpdates: (state, { payload }) => {
       const { cameraId, occupancy, timestamp } = payload.camera;
 
-      state.cameras[cameraId] = {
-        ...state.cameras[cameraId],
-        ...occupancy,
-        timestamp,
-      };
+      const cameraToUpdate = state.cameras.find(
+        camera => camera.id === cameraId
+      );
+      if (cameraToUpdate) {
+        Object.assign(cameraToUpdate, occupancy, { timestamp });
+      }
     },
     SET_CAMERA_DATA: (state, { payload }) => {
       state.cameras = payload.cameras;
@@ -74,6 +77,38 @@ export const cameraSlice = createSlice({
       })
       .addCase(addCamera.rejected, state => {
         state.cameraRequestStatus = "failed";
+      })
+      .addCase(updateCamera.pending, state => {
+        state.cameraRequestStatus = "loading";
+      })
+      .addCase(updateCamera.fulfilled, (state, { payload }) => {
+        const updatedCamera = payload.camera[0];
+        state.cameras = state.cameras.map(camera => {
+          if (camera.id === updatedCamera.id) {
+            return {
+              ...camera,
+              ...updatedCamera,
+            };
+          }
+          return camera;
+        });
+        state.cameraRequestStatus = "succeeded";
+      })
+      .addCase(updateCamera.rejected, state => {
+        state.cameraRequestStatus = "failed";
+      })
+      .addCase(removeCamera.pending, state => {
+        state.cameraRequestStatus = "loading";
+      })
+      .addCase(removeCamera.fulfilled, (state, { payload }) => {
+        state.cameras = state.cameras.filter(
+          camera => camera.id !== payload.cameraId
+        );
+        state.cameraRequestStatus = "succeeded";
+        console.log("succeeded");
+      })
+      .addCase(removeCamera.rejected, state => {
+        state.cameraRequestStatus = "failed";
       });
   },
 });
@@ -82,7 +117,7 @@ export const selectCameras = state => state.camera.cameras;
 export const selectServerResponseMessage = state =>
   state.camera.serverResponseMessage;
 
-export const { updateCamera, startUpdates, SET_CAMERA_DATA, REMOVE_DATA } =
+export const { updateCameraData, startUpdates, SET_CAMERA_DATA, REMOVE_DATA } =
   cameraSlice.actions;
 
 export default cameraSlice.reducer;

@@ -1,6 +1,6 @@
 // react imports
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCameras } from "../store/camera/cameraActions";
 import { selectUserRequestStatus } from "../store/user/userSlice";
 import {
@@ -22,10 +22,11 @@ const Dashboard = () => {
   const userRequestStatus = useSelector(selectUserRequestStatus);
   const cameras = useSelector(selectCameras);
   const serverResponseMessage = useSelector(selectServerResponseMessage);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    getCameras();
-  }, []);
+    dispatch(getCameras());
+  }, [dispatch]);
 
   let content;
   if (userRequestStatus === "loading") {

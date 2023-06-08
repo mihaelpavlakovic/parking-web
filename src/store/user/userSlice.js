@@ -40,7 +40,6 @@ export const userSlice = createSlice({
         state.serverResponseError = payload.serverResponseError;
       })
       .addCase(login.rejected, (state, { payload }) => {
-        console.log(".addCase ~ payload:", payload);
         state.tokenRequestStatus = "failed";
       })
       .addCase(register.pending, state => {
