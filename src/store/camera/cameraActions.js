@@ -121,7 +121,7 @@ export const updateCamera = createAsyncThunk(
 
 export const removeCamera = createAsyncThunk(
   "camera/removeCamera",
-  async (cameraId, thunkAPI) => {
+  async cameraId => {
     console.log("cameraId:", cameraId);
     removeEventSource(cameraId);
     const response = await del(`cameras/remove?cameraId=${cameraId}`);

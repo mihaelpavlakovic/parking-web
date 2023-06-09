@@ -9,6 +9,8 @@ import { useDispatch } from "react-redux";
 import { addCamera } from "../store/camera/cameraActions";
 import FormItem from "../utils/FormItem";
 import { useNavigate } from "react-router-dom";
+import ParkingSpot from "../utils/ParkingSpot";
+import _ from "lodash";
 
 const NewCamera = () => {
   const [polygon, setPolygon] = useState([]);
@@ -19,41 +21,11 @@ const NewCamera = () => {
   const [parkingSpaces, setParkingSpaces] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [inputError, setInputError] = useState("");
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  // const [size, setSize] = useState({ x: null, y: null });
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     const innerWidth = window.innerWidth;
-  //     if (innerWidth < 430) {
-  //       setSize({ x: 320, y: 180 });
-  //     } else if (innerWidth > 430 && innerWidth < 750) {
-  //       setSize({ x: 426, y: 240 });
-  //     } else if (innerWidth > 750 && innerWidth < 1000) {
-  //       setSize({ x: 640, y: 360 });
-  //     } else if (innerWidth > 1000 && innerWidth < 1400) {
-  //       setSize({ x: 854, y: 480 });
-  //     } else if (innerWidth > 1400) {
-  //       setSize({ x: 1280, y: 720 });
-  //     }
-  //   };
-
-  //   if (size.x === null) {
-  //     handleResize();
-  //   }
-
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, [size.x]);
-
-  // const scaleX = size.x / 640;
-  // const scaleY = size.y / 360;
-
-  // Add state for size and scale factors
   const [size, setSize] = useState({ x: null, y: null });
   const [scaleX, setScaleX] = useState(1);
   const [scaleY, setScaleY] = useState(1);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const calculateSizeAndScale = () => {
     const innerWidth = window.innerWidth;
@@ -81,6 +53,7 @@ const NewCamera = () => {
 
     return { width, height, scaleX, scaleY };
   };
+
   // Calculate size and scale factors on component mount and window resize
   useEffect(() => {
     const handleResize = () => {
@@ -90,7 +63,7 @@ const NewCamera = () => {
       setScaleY(scaleY);
     };
 
-    handleResize(); // Call the function on component mount
+    handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => {
@@ -151,15 +124,22 @@ const NewCamera = () => {
     e.preventDefault();
 
     if (polygon.length === 4 && name !== "") {
-      const scaledPolygon = polygon.map(point => [
-        Math.round(point[0] / scaleX),
-        Math.round(point[1] / scaleY),
-      ]);
-      const newParkingSpace = { name, polygon: scaledPolygon };
-      setParkingSpaces([...parkingSpaces, newParkingSpace]);
-      setPolygon([]);
-      setName("");
-      setError("");
+      const existingParkingNames = parkingSpaces.map(
+        parkingSpace => parkingSpace.name
+      );
+      if (existingParkingNames.includes(name)) {
+        setError("Parking spot name is already in use.");
+      } else {
+        const scaledPolygon = polygon.map(point => [
+          Math.round(point[0] / scaleX),
+          Math.round(point[1] / scaleY),
+        ]);
+        const newParkingSpace = { name, polygon: scaledPolygon };
+        setParkingSpaces([...parkingSpaces, newParkingSpace]);
+        setPolygon([]);
+        setName("");
+        setError("");
+      }
     } else {
       setError("Please enter parking spot name.");
     }
@@ -246,6 +226,20 @@ const NewCamera = () => {
                     draggable={false}
                   />
                 )}
+                {parkingSpaces?.map(parkingSpace => {
+                  const flattenedParkingSpot = _.flatten(parkingSpace.polygon);
+                  const parkingSpots = {
+                    name: parkingSpace.name,
+                    occupied: true,
+                    flattenedParkingSpot,
+                  };
+                  return (
+                    <ParkingSpot
+                      key={parkingSpots.name}
+                      parkingSpot={parkingSpots}
+                    />
+                  );
+                })}
                 <Group scaleX={1 / scaleX} scaleY={1 / scaleY}>
                   {polygon.map((spot, index) => (
                     <Circle
@@ -267,6 +261,7 @@ const NewCamera = () => {
               </Layer>
             </Stage>
           )}
+          {error && <p className="text-danger">{error}</p>}
           {polygon.length === 4 && (
             <div className="d-flex gap-2">
               <FormItem
@@ -289,18 +284,22 @@ const NewCamera = () => {
             </div>
           )}
           {parkingSpaces && (
-            <div>
+            <div className="d-flex flex-column gap-2">
               {parkingSpaces.map((parkingSpace, index) => {
                 return (
-                  <div key={index} className="d-flex align-items-center gap-3">
-                    <p>
-                      {parkingSpace.name} -{" "}
-                      {JSON.stringify(parkingSpace.polygon)}
-                    </p>
+                  <div className="d-flex gap-2" key={index}>
+                    <FormItem
+                      labelText="Name parking space"
+                      inputType="text"
+                      formId={`name-${index}`}
+                      formValue={parkingSpace?.name}
+                      handleChangeValue={e => handleNameChange(e, index)}
+                    />
                     <Button
-                      type="button"
                       variant="danger"
-                      onClick={() => handleDeleteParkingSpace(index)}
+                      onClick={() => {
+                        handleDeleteParkingSpace(index);
+                      }}
                     >
                       Delete
                     </Button>

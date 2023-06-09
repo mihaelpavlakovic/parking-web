@@ -53,10 +53,10 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
         {camera?.name}
       </h4>
 
-      <div className="d-flex gap-4">
-        <p>Available spaces: {parkingLocations.length}</p>
-        <p>Free parking spaces: {freeParkingSpaces}</p>
-        <p>Taken parking spaces: {takenParkingSpaces}</p>
+      <div className="d-flex gap-4 text-center text-md-start">
+        <p>Parking spaces: {parkingLocations.length}</p>
+        <p>Free spaces: {freeParkingSpaces}</p>
+        <p>Spaces taken: {takenParkingSpaces}</p>
       </div>
 
       <div className="ratio ratio-16x9 mb-2">

@@ -41,7 +41,7 @@ const FormItem = props => {
           <div className="flex-grow-1">
             <input
               type="file"
-              className="form-control-file"
+              className="form-control-file w-100"
               id={`${props.formId}-file`}
               accept={props.acceptValue}
               onChange={props.handleChangeValue}

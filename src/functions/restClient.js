@@ -41,6 +41,8 @@ const get = async url => {
       // The request was made and the server responded with a status code
       console.log("Error response:", error.response.data);
       console.log("Status code:", error.response.status);
+
+      return error.response.data;
     } else if (error.request) {
       // The request was made but no response was received
       console.log("No response received");

@@ -93,12 +93,16 @@ const Profile = () => {
         </div>
         <h2 className="mt-5">Account Control</h2>
         <hr />
-        <div className="d-flex align-items-center justify-content-between mb-5">
+        <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-5">
           <span>
             Once you delete your account, there is no going back. Please be
             certain.
           </span>
-          <Button variant="danger" onClick={deleteUserHandler}>
+          <Button
+            variant="danger"
+            onClick={deleteUserHandler}
+            className="mt-3 mt-md-0"
+          >
             Delete User
           </Button>
         </div>

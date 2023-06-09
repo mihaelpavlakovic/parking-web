@@ -22,6 +22,7 @@ export const userSlice = createSlice({
     LOGOUT: state => {
       localStorage.removeItem("token");
       state.token = null;
+      state.user = null;
       state.serverResponseMessage = "";
       state.serverResponseError = false;
       state.tokenRequestStatus = "idle";
@@ -51,7 +52,6 @@ export const userSlice = createSlice({
         state.serverResponseError = payload.serverResponseError;
       })
       .addCase(register.rejected, (state, { payload }) => {
-        console.log(".addCase ~ payload:", payload);
         state.tokenRequestStatus = "failed";
       })
       .addCase(deleteUser.pending, state => {
@@ -62,8 +62,7 @@ export const userSlice = createSlice({
         state.serverResponseMessage = payload.serverResponseMessage;
         state.serverResponseError = payload.serverResponseError;
       })
-      .addCase(deleteUser.rejected, (state, { payload }) => {
-        console.log(".addCase ~ payload:", payload);
+      .addCase(deleteUser.rejected, state => {
         state.tokenRequestStatus = "failed";
       })
       .addCase(getUserData.pending, state => {

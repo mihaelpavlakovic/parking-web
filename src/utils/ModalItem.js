@@ -146,7 +146,6 @@ const ModalItem = ({ modalShow, handleClose, modalTitle, camera }) => {
         parkingSpaces,
       })
     );
-    console.log("submited");
     handleClose(false);
   };
 
@@ -154,7 +153,7 @@ const ModalItem = ({ modalShow, handleClose, modalTitle, camera }) => {
     <Modal show={modalShow} onHide={handleClose}>
       {modalTitle !== "" && (
         <Modal.Header>
-          <Modal.Title>{modalTitle}</Modal.Title>
+          <Modal.Title>Editing - {modalTitle}</Modal.Title>
         </Modal.Header>
       )}
       <Modal.Body className="mx-auto w-100" id="modal-body">
@@ -260,7 +259,6 @@ const ModalItem = ({ modalShow, handleClose, modalTitle, camera }) => {
                 variant="danger"
                 onClick={() => {
                   handleDeleteParkingSpace(index);
-                  console.log("deleted parking spot");
                 }}
               >
                 Delete
@@ -269,6 +267,13 @@ const ModalItem = ({ modalShow, handleClose, modalTitle, camera }) => {
           ))}
           <Button variant="primary" type="submit">
             Update
+          </Button>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => handleClose(false)}
+          >
+            Cancel
           </Button>
         </form>
       </Modal.Body>

@@ -1,5 +1,5 @@
 // react imports
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -23,6 +23,23 @@ const Navigation = () => {
     dispatch(LOGOUT());
     setRedirect(true);
   };
+
+  useEffect(() => {
+    const handleTokenChange = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        dispatch(REMOVE_DATA());
+        dispatch(LOGOUT());
+        setRedirect(true);
+      }
+    };
+
+    window.addEventListener("storage", handleTokenChange);
+
+    return () => {
+      window.removeEventListener("storage", handleTokenChange);
+    };
+  }, [dispatch]);
 
   if (redirect) {
     return <Navigate to="/login" />;
