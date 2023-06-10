@@ -19,4 +19,4 @@ COPY . .
 
 RUN npm run build
 
-CMD [ "http-server", "dist", "-p", server_port ]
+CMD [ "http-server", "dist", "-p", "8085" ]
