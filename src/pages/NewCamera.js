@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 // component imports
 import { Button, Container } from "react-bootstrap";
 import { Stage, Layer, Circle, Image, Group } from "react-konva";
-import Navigation from "../components/Navigation";
 import { useDispatch } from "react-redux";
 import { addCamera } from "../store/camera/cameraActions";
 import FormItem from "../utils/FormItem";
@@ -12,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import ParkingSpot from "../utils/ParkingSpot";
 import _ from "lodash";
 
-const NewCamera = () => {
+const NewCamera = ({ handleCancle }) => {
   const [polygon, setPolygon] = useState([]);
   const [name, setName] = useState("");
   const [cameraName, setCameraName] = useState("");
@@ -173,7 +172,6 @@ const NewCamera = () => {
 
   return (
     <div>
-      <Navigation />
       <Container className="mt-4">
         <h1 className="mb-3">Add new camera:</h1>
         {inputError && (
@@ -308,8 +306,16 @@ const NewCamera = () => {
               })}
             </div>
           )}
-          <Button type="submit" variant="primary" className="mb-5 py-2">
+          <Button type="submit" variant="primary" className="py-2">
             Submit
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            className="mb-5 py-2"
+            onClick={handleCancle}
+          >
+            Cancle
           </Button>
         </form>
       </Container>

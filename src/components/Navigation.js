@@ -62,12 +62,12 @@ const Navigation = () => {
         <Nav.Link
           className="link text-white"
           style={{
-            fontWeight: location.pathname === "/new-camera" ? "700" : "",
+            fontWeight: location.pathname === "/cameras" ? "700" : "",
           }}
           as={Link}
-          to="/new-camera"
+          to="/cameras"
         >
-          Add Camera
+          Cameras
         </Nav.Link>
         <Nav.Link
           className="link text-white"

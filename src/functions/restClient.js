@@ -20,14 +20,28 @@ const post = async (url, data) => {
   } catch (error) {
     if (error.response) {
       // The request was made and the server responded with a status code
-      console.log("Error response:", error.response.data);
-      console.log("Status code:", error.response.status);
+      const response = {
+        error: true,
+        message: error.response.data,
+      };
+
+      return response;
     } else if (error.request) {
       // The request was made but no response was received
-      console.log("No response received");
+      const response = {
+        error: true,
+        message: "No response received",
+      };
+
+      return response;
     } else {
       // Something happened in setting up the request that triggered an error
-      console.log("Error setting up request");
+      const response = {
+        error: true,
+        message: "Error setting up request",
+      };
+
+      return response;
     }
   }
 };
@@ -39,16 +53,28 @@ const get = async url => {
   } catch (error) {
     if (error.response) {
       // The request was made and the server responded with a status code
-      console.log("Error response:", error.response.data);
-      console.log("Status code:", error.response.status);
+      const response = {
+        error: true,
+        message: error.response.data,
+      };
 
-      return error.response.data;
+      return response;
     } else if (error.request) {
       // The request was made but no response was received
-      console.log("No response received");
+      const response = {
+        error: true,
+        message: "No response received",
+      };
+
+      return response;
     } else {
       // Something happened in setting up the request that triggered an error
-      console.log("Error setting up request");
+      const response = {
+        error: true,
+        message: "Error setting up request",
+      };
+
+      return response;
     }
   }
 };
@@ -60,14 +86,28 @@ const putReq = async (url, data) => {
   } catch (error) {
     if (error.response) {
       // The request was made and the server responded with a status code
-      console.log("Error response:", error.response.data);
-      console.log("Status code:", error.response.status);
+      const response = {
+        error: true,
+        message: error.response.data,
+      };
+
+      return response;
     } else if (error.request) {
       // The request was made but no response was received
-      console.log("No response received");
+      const response = {
+        error: true,
+        message: "No response received",
+      };
+
+      return response;
     } else {
       // Something happened in setting up the request that triggered an error
-      console.log("Error setting up request");
+      const response = {
+        error: true,
+        message: "Error setting up request",
+      };
+
+      return response;
     }
   }
 };
@@ -79,14 +119,28 @@ const del = async url => {
   } catch (error) {
     if (error.response) {
       // The request was made and the server responded with a status code
-      console.log("Error response:", error.response.data);
-      console.log("Status code:", error.response.status);
+      const response = {
+        error: true,
+        message: error.response.data,
+      };
+
+      return response;
     } else if (error.request) {
       // The request was made but no response was received
-      console.log("No response received");
+      const response = {
+        error: true,
+        message: "No response received",
+      };
+
+      return response;
     } else {
       // Something happened in setting up the request that triggered an error
-      console.log("Error setting up request");
+      const response = {
+        error: true,
+        message: "Error setting up request",
+      };
+
+      return response;
     }
   }
 };

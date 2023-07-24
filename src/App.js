@@ -6,8 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import PrivateRoutes from "./routes/PrivateRoutes";
 import Profile from "./pages/Profile";
-import NewCamera from "./pages/NewCamera";
 import Register from "./pages/Register";
+import Cameras from "./pages/Cameras";
 
 function App() {
   return (
@@ -16,7 +16,7 @@ function App() {
         <Routes>
           <Route element={<PrivateRoutes />}>
             <Route element={<Profile />} path="/profile" />
-            <Route element={<NewCamera />} path="/new-camera" />
+            <Route element={<Cameras />} path="/cameras" />
             <Route element={<Dashboard />} path="/" exact />
           </Route>
           <Route element={<Login />} path="/login" />
