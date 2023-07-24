@@ -1,7 +1,5 @@
 FROM node:16-alpine3.15
 
-ARG server_port="8085"
-
 # install simple http server for serving static content
 RUN npm install -g http-server
 
@@ -17,6 +15,10 @@ RUN npm install
 # copy project files and folders to the current working directory (i.e. 'app' folder)
 COPY . .
 
-RUN npm run build
+EXPOSE 8085
 
-CMD [ "http-server", "dist", "-p", server_port ]
+# CMD [ "http-server", "dist", "-p", "8085" ]
+
+ENV PORT=8085
+
+CMD [ "npm", "start" ]
