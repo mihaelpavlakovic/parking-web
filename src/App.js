@@ -8,6 +8,7 @@ import PrivateRoutes from "./routes/PrivateRoutes";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import Cameras from "./pages/Cameras";
+import EditCamera from "./pages/EditCamera";
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
         <Routes>
           <Route element={<PrivateRoutes />}>
             <Route element={<Profile />} path="/profile" />
-            <Route element={<Cameras />} path="/cameras" />
+            <Route element={<Cameras />} path="/cameras" exact />
+            <Route element={<EditCamera />} path="/cameras/:cameraId" exact />
             <Route element={<Dashboard />} path="/" exact />
           </Route>
           <Route element={<Login />} path="/login" />
