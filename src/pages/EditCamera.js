@@ -10,6 +10,7 @@ import { updateCamera } from "../store/camera/cameraActions";
 import { selectCameras } from "../store/camera/cameraSlice";
 import Navigation from "../components/Navigation";
 import useImageScaler from "../hooks/useImageScaler";
+import useImageSelector from "../hooks/useImageSelector";
 
 const EditCamera = () => {
   const { cameraId } = useParams();
@@ -25,9 +26,9 @@ const EditCamera = () => {
   const navigate = useNavigate();
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [parkingType, setParkingType] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
   const { imageSize, originalImageSize, setOriginalImageSize } =
     useImageScaler();
+  const { selectedImage } = useImageSelector(camera?.sourceURL);
 
   useEffect(() => {
     if (selectedImage) {
@@ -36,7 +37,7 @@ const EditCamera = () => {
         height: selectedImage.height,
       });
     }
-  }, [selectedImage]);
+  }, [selectedImage, setOriginalImageSize]);
 
   useEffect(() => {
     if (!isDataFetched) {
@@ -57,21 +58,6 @@ const EditCamera = () => {
       fetchData();
     }
   }, [cameraId, cameras, isDataFetched]);
-
-  useEffect(() => {
-    const loadImage = () => {
-      const image = new window.Image();
-      image.src = camera?.sourceURL;
-
-      image.onload = () => {
-        setSelectedImage(image);
-      };
-    };
-
-    if (camera?.sourceURL) {
-      loadImage();
-    }
-  }, [camera?.sourceURL]);
 
   const handleDragMove = (index, e) => {
     const stage = e.target.getStage();

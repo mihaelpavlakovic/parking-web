@@ -10,7 +10,6 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
     useImageScaler();
 
   useEffect(() => {
-    // Extract width and height of the original image
     if (currentImage) {
       const img = new window.Image();
       img.src = `data:image/png;base64, ${currentImage}`;

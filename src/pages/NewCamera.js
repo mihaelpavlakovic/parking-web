@@ -5,12 +5,13 @@ import React, { useEffect, useState } from "react";
 import { Button, Container, Form } from "react-bootstrap";
 import { Stage, Layer, Circle, Image, Group } from "react-konva";
 import { useDispatch } from "react-redux";
-import { addCamera, fetchCameraFrame } from "../store/camera/cameraActions";
+import { addCamera } from "../store/camera/cameraActions";
 import FormItem from "../utils/FormItem";
 import { useNavigate } from "react-router-dom";
 import ParkingSpot from "../utils/ParkingSpot";
 import _ from "lodash";
 import useImageScaler from "../hooks/useImageScaler";
+import useImageSelector from "../hooks/useImageSelector";
 
 const NewCamera = ({ handleCancle }) => {
   const [polygon, setPolygon] = useState([]);
@@ -20,10 +21,10 @@ const NewCamera = ({ handleCancle }) => {
   const [cameraSource, setCameraSource] = useState("");
   const [error, setError] = useState("");
   const [parkingSpaces, setParkingSpaces] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
   const [inputError, setInputError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { selectedImage, handleImageChange } = useImageSelector();
   const { imageSize, originalImageSize, setOriginalImageSize } =
     useImageScaler();
 
@@ -59,19 +60,6 @@ const NewCamera = ({ handleCancle }) => {
 
   const handleCameraSourceChange = (e) => {
     setCameraSource(e.target.value);
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      const image = new window.Image();
-      image.src = reader.result;
-      image.onload = () => {
-        setSelectedImage(image);
-      };
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleDeleteParkingSpace = (index) => {
@@ -161,7 +149,7 @@ const NewCamera = ({ handleCancle }) => {
         height: selectedImage.height,
       });
     }
-  }, [selectedImage]);
+  }, [selectedImage, setOriginalImageSize]);
 
   return (
     <div>
