@@ -13,7 +13,6 @@ export const cameraSlice = createSlice({
   name: "camera",
   initialState: {
     cameras: [],
-    cameraFrame: "",
     serverResponseError: false,
     serverResponseMessage: "",
     cameraRequestStatus: "idle",
@@ -70,16 +69,6 @@ export const cameraSlice = createSlice({
       .addCase(getCameras.rejected, (state) => {
         state.cameraRequestStatus = "failed";
       })
-      .addCase(fetchCameraFrame.pending, (state) => {
-        state.cameraRequestStatus = "loading";
-      })
-      .addCase(fetchCameraFrame.fulfilled, (state, { payload }) => {
-        state.cameraRequestStatus = "succeeded";
-        state.cameraFrame = payload;
-      })
-      .addCase(fetchCameraFrame.rejected, (state) => {
-        state.cameraRequestStatus = "failed";
-      })
       .addCase(addCamera.pending, (state) => {
         state.cameraRequestStatus = "loading";
       })
@@ -126,7 +115,6 @@ export const cameraSlice = createSlice({
 });
 
 export const selectCameras = (state) => state.camera.cameras;
-export const selectCameraFrame = (state) => state.camera.cameraFrame;
 export const selectServerResponseMessage = (state) =>
   state.camera.serverResponseMessage;
 

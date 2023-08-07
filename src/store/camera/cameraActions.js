@@ -9,7 +9,6 @@ import {
 // library imports
 import { del, get, post, putReq } from "../../functions/restClient";
 import { baseURL } from "../../enviroment";
-import axios from "axios";
 var _ = require("lodash");
 
 export const getCameras = createAsyncThunk(
@@ -36,26 +35,6 @@ export const getCameras = createAsyncThunk(
     thunkAPI.dispatch(startCameraUpdates(cameraData));
 
     return cameraData;
-  }
-);
-
-export const fetchCameraFrame = createAsyncThunk(
-  "camera/fetchCameraFrame",
-  async ({ cameraSource }, thunkAPI) => {
-    try {
-      console.log("streamUrl:", cameraSource);
-      const response = await axios.get(`${cameraSource}`, {
-        responseType: "blob",
-      });
-      // Convert the blob data to a URL for rendering
-      const imageUrl = URL.createObjectURL(response.data);
-
-      return imageUrl;
-    } catch (error) {
-      console.error("Error fetching stream:", error);
-      // Rethrow the error so that it can be handled in the Redux store
-      throw error;
-    }
   }
 );
 

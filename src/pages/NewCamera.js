@@ -4,13 +4,13 @@ import React, { useEffect, useState } from "react";
 // component imports
 import { Button, Container, Form } from "react-bootstrap";
 import { Stage, Layer, Circle, Image, Group } from "react-konva";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addCamera, fetchCameraFrame } from "../store/camera/cameraActions";
 import FormItem from "../utils/FormItem";
 import { useNavigate } from "react-router-dom";
 import ParkingSpot from "../utils/ParkingSpot";
 import _ from "lodash";
-import { selectCameraFrame } from "../store/camera/cameraSlice";
+import useImageScaler from "../hooks/useImageScaler";
 
 const NewCamera = ({ handleCancle }) => {
   const [polygon, setPolygon] = useState([]);
@@ -24,13 +24,8 @@ const NewCamera = ({ handleCancle }) => {
   const [inputError, setInputError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-  const [originalImageSize, setOriginalImageSize] = useState({
-    width: 0,
-    height: 0,
-  });
-  const cameraFrame = useSelector(selectCameraFrame);
-  // console.log("NewCamera ~ cameraFrame:", cameraFrame);
+  const { imageSize, originalImageSize, setOriginalImageSize } =
+    useImageScaler();
 
   const handleStageClick = (e) => {
     const stage = e.target.getStage();
@@ -118,17 +113,6 @@ const NewCamera = ({ handleCancle }) => {
     }
   };
 
-  const handleSubmitStreamUrl = (e) => {
-    e.preventDefault();
-
-    if (cameraSource === "") {
-      setInputError("Please fill out every input field.");
-      return;
-    }
-
-    dispatch(fetchCameraFrame({ cameraSource }));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -171,36 +155,6 @@ const NewCamera = ({ handleCancle }) => {
   };
 
   useEffect(() => {
-    const handleResize = () => {
-      // Calculate the aspect ratio of the image
-      const aspectRatio = 16 / 9;
-
-      // Get the container width and calculate the maximum width for the image
-      const containerWidth = window.innerWidth;
-      const maxWidth = Math.min(containerWidth, window.innerWidth - 170);
-
-      // Calculate the corresponding height based on the aspect ratio
-      const height = maxWidth / aspectRatio;
-
-      // If the calculated width is greater than the container width, scale down the width and recalculate the height
-      if (maxWidth > containerWidth) {
-        const scaledWidth = containerWidth;
-        const scaledHeight = scaledWidth / aspectRatio;
-        setImageSize({ width: scaledWidth, height: scaledHeight });
-      } else {
-        setImageSize({ width: maxWidth, height: height });
-      }
-    };
-
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
     if (selectedImage) {
       setOriginalImageSize({
         width: selectedImage.width,
@@ -233,22 +187,13 @@ const NewCamera = ({ handleCancle }) => {
             formValue={cameraName}
             handleChangeValue={handleCameraNameChange}
           />
-          <div className="d-flex flex-row gap-3">
-            <FormItem
-              labelText="URL for camera source"
-              inputType="text"
-              formId="cameraSource"
-              formValue={cameraSource}
-              handleChangeValue={handleCameraSourceChange}
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleSubmitStreamUrl}
-            >
-              Submit
-            </Button>
-          </div>
+          <FormItem
+            labelText="URL for camera source"
+            inputType="text"
+            formId="cameraSource"
+            formValue={cameraSource}
+            handleChangeValue={handleCameraSourceChange}
+          />
           <FormItem
             labelText="Select an image"
             inputType="file"
