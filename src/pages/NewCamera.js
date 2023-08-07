@@ -10,7 +10,6 @@ import FormItem from "../utils/FormItem";
 import { useNavigate } from "react-router-dom";
 import ParkingSpot from "../utils/ParkingSpot";
 import _ from "lodash";
-import "react-image-crop/dist/ReactCrop.css";
 import { selectCameraFrame } from "../store/camera/cameraSlice";
 
 const NewCamera = ({ handleCancle }) => {
