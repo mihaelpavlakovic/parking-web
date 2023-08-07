@@ -15,7 +15,7 @@ const Cameras = () => {
   const [showAddCamera, setShowAddCamera] = useState(false);
   const dispatch = useDispatch();
 
-  const handleDelete = cameraId => {
+  const handleDelete = (cameraId) => {
     dispatch(removeCamera(cameraId));
   };
 
@@ -27,8 +27,16 @@ const Cameras = () => {
     <div>
       <Navigation />
       <Container className="mt-4">
-        <h1 className="mb-4">Available cameras:</h1>
-        <div className="d-flex flex-column justify-content-center gap-5">
+        <div className="d-flex justify-content-between align-items-center mb-5">
+          <h1>Available cameras:</h1>
+          {!showAddCamera && (
+            <Button variant="primary" onClick={handleAddCamera}>
+              Add Camera
+            </Button>
+          )}
+        </div>
+        {showAddCamera && <NewCamera handleCancle={handleAddCamera} />}
+        <div className="d-flex flex-column justify-content-center gap-5 mt-3">
           {cameras?.length === 0 && <p>You don't have any cameras.</p>}
           <div className="row">
             {cameras &&
@@ -39,10 +47,7 @@ const Cameras = () => {
                       <h5>{camera.name}</h5>
                       <div className="d-flex gap-2">
                         <Link to={`/cameras/${camera.id}`}>
-                        <Button
-                          variant="secondary"
-                        >Edit
-                        </Button>
+                          <Button variant="secondary">Edit</Button>
                         </Link>
                         <Button
                           variant="danger"
@@ -59,12 +64,6 @@ const Cameras = () => {
               })}
           </div>
         </div>
-        {!showAddCamera && (
-          <Button variant="primary" onClick={handleAddCamera}>
-            Add Camera
-          </Button>
-        )}
-        {showAddCamera && <NewCamera handleCancle={handleAddCamera} />}
       </Container>
     </div>
   );

@@ -54,7 +54,7 @@ export const register = createAsyncThunk(
   }
 );
 
-export const deleteUser = createAsyncThunk("user/DELETE_USER", async _ => {
+export const deleteUser = createAsyncThunk("user/DELETE_USER", async (_) => {
   const response = await del("users/remove");
 
   if (response.error) {
@@ -83,7 +83,7 @@ export const getUserData = createAsyncThunk(
         response.message.toLowerCase() === "invalid signature"
       ) {
         console.log("here");
-        dispatch(LOGOUT());
+        LOGOUT();
       }
     }
 

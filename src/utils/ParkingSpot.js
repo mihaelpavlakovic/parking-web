@@ -4,12 +4,15 @@ import React from "react";
 // library imports
 import { Line, Text } from "react-konva";
 
-const ParkingSpot = ({ parkingSpot }) => {
+const ParkingSpot = ({ parkingSpot, scaleX, scaleY }) => {
+  const actualLineWidth = 2 / Math.min(scaleX, scaleY);
+  const actualFontSize = 16 / Math.min(scaleX, scaleY);
+
   return (
     <>
       <Text
         text={`${parkingSpot.name} - ${parkingSpot.occupied}`}
-        fontSize={16}
+        fontSize={actualFontSize}
         fill={parkingSpot.occupied ? "red" : "green"}
         x={
           (parkingSpot.flattenedParkingSpot[0] +
@@ -26,6 +29,7 @@ const ParkingSpot = ({ parkingSpot }) => {
         points={parkingSpot.flattenedParkingSpot}
         closed
         stroke={parkingSpot.occupied ? "red" : "green"}
+        strokeWidth={actualLineWidth}
       />
     </>
   );
