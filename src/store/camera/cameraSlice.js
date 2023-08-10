@@ -69,6 +69,36 @@ export const cameraSlice = createSlice({
       .addCase(getCameras.rejected, (state) => {
         state.cameraRequestStatus = "failed";
       })
+      .addCase(fetchCameraFrame.pending, (state) => {
+        state.cameraRequestStatus = "loading";
+      })
+      .addCase(fetchCameraFrame.fulfilled, (state, { payload }) => {
+        const { cameraFrame, cameraId } = payload;
+
+        const cameraIndex = state.cameras.findIndex(
+          (camera) => camera.id === cameraId
+        );
+
+        if (cameraIndex !== -1) {
+          const updatedCameras = [...state.cameras];
+          const existingCamera = updatedCameras[cameraIndex];
+
+          if (cameraFrame.hasOwnProperty("originalImage")) {
+            existingCamera.originalImage = cameraFrame.originalImage;
+          } else {
+            existingCamera.originalImage = cameraFrame;
+          }
+
+          state.cameras = updatedCameras;
+        } else {
+          console.error(`Camera with cameraId ${cameraId} not found.`);
+        }
+
+        state.cameraRequestStatus = "succeeded";
+      })
+      .addCase(fetchCameraFrame.rejected, (state) => {
+        state.cameraRequestStatus = "failed";
+      })
       .addCase(addCamera.pending, (state) => {
         state.cameraRequestStatus = "loading";
       })

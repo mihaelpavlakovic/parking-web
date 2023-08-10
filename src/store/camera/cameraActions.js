@@ -38,11 +38,21 @@ export const getCameras = createAsyncThunk(
   }
 );
 
+export const fetchCameraFrame = createAsyncThunk(
+  "camera/fetchCameraFrame",
+  async ({ cameraId }, thunkAPI) => {
+    const response = await get(`cameras/originalImage?cameraId=${cameraId}`);
+
+    return { cameraFrame: response.data, cameraId };
+  }
+);
+
 export const startCameraUpdates = createAsyncThunk(
   "camera/startUpdates",
   async (cameras, thunkAPI) => {
     _.forEach(cameras.data, (camera) => {
       const handleCameraUpdate = (camera) => {
+        thunkAPI.dispatch(fetchCameraFrame({ cameraId: camera.cameraId }));
         thunkAPI.dispatch(startUpdates({ camera }));
       };
 

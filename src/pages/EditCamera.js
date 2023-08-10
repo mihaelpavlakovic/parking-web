@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import FormItem from "../utils/FormItem";
 import { Circle, Group, Layer, Stage, Image } from "react-konva";
 import ParkingSpot from "../utils/ParkingSpot";
-import { Button, Container, Form } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import _ from "lodash";
 import { updateCamera } from "../store/camera/cameraActions";
@@ -11,6 +11,8 @@ import { selectCameras } from "../store/camera/cameraSlice";
 import Navigation from "../components/Navigation";
 import useImageScaler from "../hooks/useImageScaler";
 import useImageSelector from "../hooks/useImageSelector";
+import { calculateScaledPoint } from "../utils";
+import ParkingSpaceInput from "../utils/ParkingSpaceInput";
 
 const EditCamera = () => {
   const { cameraId } = useParams();
@@ -29,15 +31,6 @@ const EditCamera = () => {
   const { imageSize, originalImageSize, setOriginalImageSize } =
     useImageScaler();
   const { selectedImage } = useImageSelector(camera?.sourceURL);
-
-  useEffect(() => {
-    if (selectedImage) {
-      setOriginalImageSize({
-        width: selectedImage.width,
-        height: selectedImage.height,
-      });
-    }
-  }, [selectedImage, setOriginalImageSize]);
 
   useEffect(() => {
     if (!isDataFetched) {
@@ -63,14 +56,14 @@ const EditCamera = () => {
     const stage = e.target.getStage();
     const pointerPosition = stage.getPointerPosition();
 
-    const scaleX = originalImageSize.width / imageSize.width;
-    const scaleY = originalImageSize.height / imageSize.height;
-
-    const x = Math.round(pointerPosition.x * scaleX);
-    const y = Math.round(pointerPosition.y * scaleY);
+    const scaledPoint = calculateScaledPoint(
+      { x: pointerPosition.x, y: pointerPosition.y },
+      imageSize,
+      originalImageSize
+    );
 
     const updatedPolygon = [...polygon];
-    updatedPolygon[index] = [x, y];
+    updatedPolygon[index] = scaledPoint;
     setPolygon(updatedPolygon);
   };
 
@@ -90,19 +83,51 @@ const EditCamera = () => {
     const stage = e.target.getStage();
     const pointerPosition = stage.getPointerPosition();
 
-    const scaleX = originalImageSize.width / imageSize.width;
-    const scaleY = originalImageSize.height / imageSize.height;
-
-    const x = Math.round(pointerPosition.x * scaleX);
-    const y = Math.round(pointerPosition.y * scaleY);
-    const newSpot = [x, y];
+    const scaledPoint = calculateScaledPoint(
+      { x: pointerPosition.x, y: pointerPosition.y },
+      imageSize,
+      originalImageSize
+    );
 
     if (polygon.length < 4) {
-      setPolygon([...polygon, newSpot]);
+      setPolygon([...polygon, scaledPoint]);
     }
   };
 
-  const handleSubmission = (e) => {
+  const handleNameChange = (e, index) => {
+    const updatedParkingSpaces = [...parkingSpaces];
+    const updatedParkingSpace = {
+      ...updatedParkingSpaces[index],
+      name: e.target.value,
+    };
+    updatedParkingSpaces[index] = updatedParkingSpace;
+    setParkingSpaces(updatedParkingSpaces);
+  };
+
+  const handleCameraNameChange = (e) => {
+    setCameraName(e.target.value);
+  };
+
+  const handleCameraSourceChange = (e) => {
+    setCameraSource(e.target.value);
+  };
+
+  const handleTypeChange = (e, index) => {
+    const updatedParkingSpaces = [...parkingSpaces];
+    updatedParkingSpaces[index].type = e.target.value;
+    setParkingSpaces(updatedParkingSpaces);
+  };
+
+  useEffect(() => {
+    if (selectedImage) {
+      setOriginalImageSize({
+        width: selectedImage.width,
+        height: selectedImage.height,
+      });
+    }
+  }, [selectedImage, setOriginalImageSize]);
+
+  const handleParkingSpotSubmit = (e) => {
     e.preventDefault();
 
     if (polygon.length === 4 && name !== "") {
@@ -135,25 +160,7 @@ const EditCamera = () => {
     }
   };
 
-  const handleNameChange = (e, index) => {
-    const updatedParkingSpaces = [...parkingSpaces];
-    const updatedParkingSpace = {
-      ...updatedParkingSpaces[index],
-      name: e.target.value,
-    };
-    updatedParkingSpaces[index] = updatedParkingSpace;
-    setParkingSpaces(updatedParkingSpaces);
-  };
-
-  const handleCameraNameChange = (e) => {
-    setCameraName(e.target.value);
-  };
-
-  const handleCameraSourceChange = (e) => {
-    setCameraSource(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
 
     dispatch(
@@ -175,7 +182,10 @@ const EditCamera = () => {
         {camera ? (
           <>
             <h3 className="mb-3">Edit Camera - {cameraId}</h3>
-            <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+            <form
+              onSubmit={handleFormSubmit}
+              className="d-flex flex-column gap-3"
+            >
               <FormItem
                 labelText="Parking location name"
                 inputType="text"
@@ -271,34 +281,15 @@ const EditCamera = () => {
               </Stage>
               {error && <p className="text-danger">{error}</p>}
               {polygon.length === 4 && (
-                <div className="d-flex gap-2">
-                  <FormItem
-                    labelText="Name parking space"
-                    inputType="text"
-                    formId="name"
-                    formValue={name}
-                    handleChangeValue={(e) => setName(e.target.value)}
-                    addStyle={{
-                      borderColor: error ? "red" : "initial",
-                    }}
-                  />
-                  <Form.Select
-                    label="Parking space type:"
-                    onChange={(e) => setParkingType(e.target.value)}
-                  >
-                    <option value="">Select Type</option>
-                    <option value="normal">normal</option>
-                    <option value="disabled">disabled</option>
-                    <option value="reserved">reserved</option>
-                  </Form.Select>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={handleSubmission}
-                  >
-                    Submit
-                  </Button>
-                </div>
+                <ParkingSpaceInput
+                  parkingSpace={{
+                    name,
+                  }}
+                  isEditing={false}
+                  setParkingType={setParkingType}
+                  handleNameChange={(e) => setName(e.target.value)}
+                  handleParkingSpotSubmit={handleParkingSpotSubmit}
+                />
               )}
               {parkingSpaces?.map((parkingSpace, index) => {
                 const allParkingTypes = ["normal", "disabled", "reserved"];
@@ -306,40 +297,16 @@ const EditCamera = () => {
                   (option) => option !== parkingSpace.type
                 );
                 return (
-                  <div className="d-flex gap-2" key={index}>
-                    <FormItem
-                      labelText="Name parking space"
-                      inputType="text"
-                      formId={`name-${index}`}
-                      formValue={parkingSpace?.name}
-                      handleChangeValue={(e) => handleNameChange(e, index)}
-                    />
-                    <Form.Select
-                      value={parkingSpace.type}
-                      onChange={(e) => {
-                        const updatedParkingSpaces = [...parkingSpaces];
-                        updatedParkingSpaces[index].type = e.target.value;
-                        setParkingSpaces(updatedParkingSpaces);
-                      }}
-                    >
-                      <option value={parkingSpace.type}>
-                        {parkingSpace.type}
-                      </option>
-                      {parkingTypeOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </Form.Select>
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        handleDeleteParkingSpace(index);
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </div>
+                  <ParkingSpaceInput
+                    key={parkingSpace.name}
+                    parkingSpace={parkingSpace}
+                    parkingTypeOptions={parkingTypeOptions}
+                    index={index}
+                    isEditing={true}
+                    handleNameChange={handleNameChange}
+                    handleTypeChange={handleTypeChange}
+                    handleDeleteParkingSpace={handleDeleteParkingSpace}
+                  />
                 );
               })}
               <Button variant="primary" type="submit">

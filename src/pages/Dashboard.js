@@ -44,9 +44,12 @@ const Dashboard = () => {
           Live Cameras:
         </h1>
         {_.map(cameras, (camera, index) => {
-          if (!camera.data) {
+          if (!camera?.originalImage) {
             return (
-              <Container key={index} className="ratio ratio-16x9 mb-2">
+              <Container
+                key={index}
+                className="ratio ratio-16x9 mb-2 overflow-hidden"
+              >
                 <Placeholder animation="wave">
                   <Placeholder className="w-100 h-100" />
                 </Placeholder>
@@ -58,7 +61,7 @@ const Dashboard = () => {
                 key={index}
                 camera={camera}
                 currentImage={camera.originalImage}
-                parkingLocations={camera.data?.result?.spots}
+                parkingLocations={camera.spots}
               />
             );
           }

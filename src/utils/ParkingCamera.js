@@ -33,10 +33,12 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
       </h4>
 
       <div className="d-flex gap-4 text-center text-md-start">
-        <p>Parking spaces: {parkingLocations.length}</p>
+        <p>Parking spaces: {parkingLocations?.length}</p>
         <p>Free spaces: {freeParkingSpaces}</p>
         <p>Spaces taken: {takenParkingSpaces}</p>
       </div>
+
+      <p>{camera?.updatedAt}</p>
 
       <div
         style={{ width: imageSize.width, height: imageSize.height }}
