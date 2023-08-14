@@ -73,25 +73,35 @@ export const cameraSlice = createSlice({
         state.cameraRequestStatus = "loading";
       })
       .addCase(fetchCameraFrame.fulfilled, (state, { payload }) => {
-        const { cameraFrame, cameraId } = payload;
+        const {
+          cameraFrame,
+          cameraId,
+          serverResponseMessage,
+          serverResponseError,
+        } = payload;
 
-        const cameraIndex = state.cameras.findIndex(
-          (camera) => camera.id === cameraId
-        );
+        if (cameraFrame !== null) {
+          const cameraIndex = state.cameras.findIndex(
+            (camera) => camera.id === cameraId
+          );
 
-        if (cameraIndex !== -1) {
-          const updatedCameras = [...state.cameras];
-          const existingCamera = updatedCameras[cameraIndex];
+          if (cameraIndex !== -1) {
+            const updatedCameras = [...state.cameras];
+            const existingCamera = updatedCameras[cameraIndex];
 
-          if (cameraFrame.hasOwnProperty("originalImage")) {
-            existingCamera.originalImage = cameraFrame.originalImage;
+            if (cameraFrame.hasOwnProperty("originalImage")) {
+              existingCamera.originalImage = cameraFrame.originalImage;
+            } else {
+              existingCamera.originalImage = cameraFrame;
+            }
+
+            state.cameras = updatedCameras;
           } else {
-            existingCamera.originalImage = cameraFrame;
+            console.error(`Camera with cameraId ${cameraId} not found.`);
           }
-
-          state.cameras = updatedCameras;
         } else {
-          console.error(`Camera with cameraId ${cameraId} not found.`);
+          state.serverResponseError = serverResponseError;
+          state.serverResponseMessage = serverResponseMessage;
         }
 
         state.cameraRequestStatus = "succeeded";
@@ -145,6 +155,8 @@ export const cameraSlice = createSlice({
 });
 
 export const selectCameras = (state) => state.camera.cameras;
+export const selectServerResponseError = (state) =>
+  state.camera.serverResponseError;
 export const selectServerResponseMessage = (state) =>
   state.camera.serverResponseMessage;
 

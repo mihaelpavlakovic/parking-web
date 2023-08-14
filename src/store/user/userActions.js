@@ -29,6 +29,11 @@ export const login = createAsyncThunk(
   }
 );
 
+export const logout = createAsyncThunk("user/logout", () => {
+  console.log("logout fn run");
+  return [];
+});
+
 export const register = createAsyncThunk(
   "user/register",
   async ({ email, password }) => {
@@ -82,11 +87,11 @@ export const getUserData = createAsyncThunk(
         response.message.toLowerCase() === "jwt expired" ||
         response.message.toLowerCase() === "invalid signature"
       ) {
-        console.log("here");
-        LOGOUT();
+        dispatch(logout());
+        return { userData: null, isExpired: true };
       }
     }
 
-    return { userData: response.data };
+    return { userData: response.data, isExpired: false };
   }
 );

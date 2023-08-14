@@ -35,14 +35,14 @@ const Cameras = () => {
             </Button>
           )}
         </div>
-        {showAddCamera && <NewCamera handleCancle={handleAddCamera} />}
+        {showAddCamera && <NewCamera handleCancel={handleAddCamera} />}
         <div className="d-flex flex-column justify-content-center gap-5 mt-3">
           {cameras?.length === 0 && <p>You don't have any cameras.</p>}
           <div className="row">
             {cameras &&
               _.map(cameras, (camera, index) => {
                 return (
-                  <div key={index} className="col-12 col-md-6 mb-3">
+                  <div key={index} className="col-12 col-md-6 col-lg-4 mb-3">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h5>{camera.name}</h5>
                       <div className="d-flex gap-2">

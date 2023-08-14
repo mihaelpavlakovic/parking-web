@@ -43,7 +43,21 @@ export const fetchCameraFrame = createAsyncThunk(
   async ({ cameraId }, thunkAPI) => {
     const response = await get(`cameras/originalImage?cameraId=${cameraId}`);
 
-    return { cameraFrame: response.data, cameraId };
+    if (response.error) {
+      return {
+        cameraFrame: null,
+        cameraId,
+        serverResponseMessage: response.message,
+        serverResponseError: response.error,
+      };
+    }
+
+    return {
+      cameraFrame: response.data,
+      cameraId,
+      serverResponseMessage: response.message,
+      serverResponseError: response.error,
+    };
   }
 );
 

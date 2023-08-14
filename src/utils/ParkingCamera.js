@@ -3,11 +3,18 @@ import { Image } from "react-bootstrap";
 import { Stage, Layer } from "react-konva";
 import useImageScaler from "../hooks/useImageScaler";
 import ParkingSpot from "./ParkingSpot";
+import { useSelector } from "react-redux";
+import {
+  selectServerResponseError,
+  selectServerResponseMessage,
+} from "../store/camera/cameraSlice";
 var _ = require("lodash");
 
 const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
   const { imageSize, originalImageSize, setOriginalImageSize } =
     useImageScaler();
+  const hasError = useSelector(selectServerResponseError);
+  const errorMessage = useSelector(selectServerResponseMessage);
 
   useEffect(() => {
     if (currentImage) {
@@ -38,55 +45,58 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
         <p>Spaces taken: {takenParkingSpaces}</p>
       </div>
 
-      <p>{camera?.updatedAt}</p>
+      <p>{Date(camera?.updatedAt)}</p>
 
       <div
         style={{ width: imageSize.width, height: imageSize.height }}
         className="ratio ratio-16x9 mb-2"
       >
-        {currentImage && (
+        {currentImage && !hasError ? (
           <Image
             src={`data:image/png;base64, ${currentImage}`}
             alt="Parking lot feed"
             style={{ width: "100%", height: "100%" }}
           />
+        ) : (
+          <p>{errorMessage}</p>
         )}
-        {originalImageSize.width !== 0 && originalImageSize.height !== 0 && (
-          <Stage width={imageSize.width} height={imageSize.height}>
-            <Layer>
-              {_.map(parkingLocations, (parkingLocation) => {
-                const originalParkingSpot = parkingLocation.polygon;
-                // Calculate the dynamic scaleX and scaleY values based on the original image size
-                const scaleX =
-                  originalImageSize.width !== 0
-                    ? imageSize.width / originalImageSize.width
-                    : 1;
-                const scaleY =
-                  originalImageSize.height !== 0
-                    ? imageSize.height / originalImageSize.height
-                    : 1;
-                const scaledParkingSpot = originalParkingSpot.map(([x, y]) => [
-                  x * scaleX,
-                  y * scaleY,
-                ]);
-                const parkingSpots = {
-                  name: parkingLocation.name,
-                  occupied: parkingLocation.occupied,
-                  flattenedParkingSpot: _.flatten(scaledParkingSpot),
-                };
+        {originalImageSize.width !== 0 &&
+          originalImageSize.height !== 0 &&
+          !hasError && (
+            <Stage width={imageSize.width} height={imageSize.height}>
+              <Layer>
+                {_.map(parkingLocations, (parkingLocation) => {
+                  const originalParkingSpot = parkingLocation.polygon;
+                  // Calculate the dynamic scaleX and scaleY values based on the original image size
+                  const scaleX =
+                    originalImageSize.width !== 0
+                      ? imageSize.width / originalImageSize.width
+                      : 1;
+                  const scaleY =
+                    originalImageSize.height !== 0
+                      ? imageSize.height / originalImageSize.height
+                      : 1;
+                  const scaledParkingSpot = originalParkingSpot.map(
+                    ([x, y]) => [x * scaleX, y * scaleY]
+                  );
+                  const parkingSpots = {
+                    name: parkingLocation.name,
+                    occupied: parkingLocation.occupied,
+                    flattenedParkingSpot: _.flatten(scaledParkingSpot),
+                  };
 
-                return (
-                  <ParkingSpot
-                    key={parkingSpots.name}
-                    parkingSpot={parkingSpots}
-                    scaleX={scaleX * 2}
-                    scaleY={scaleY * 2}
-                  />
-                );
-              })}
-            </Layer>
-          </Stage>
-        )}
+                  return (
+                    <ParkingSpot
+                      key={parkingSpots.name}
+                      parkingSpot={parkingSpots}
+                      scaleX={scaleX * 2}
+                      scaleY={scaleY * 2}
+                    />
+                  );
+                })}
+              </Layer>
+            </Stage>
+          )}
       </div>
     </React.Fragment>
   );

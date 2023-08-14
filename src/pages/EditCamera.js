@@ -178,7 +178,7 @@ const EditCamera = () => {
   return (
     <div>
       <Navigation />
-      <Container className="mt-4">
+      <Container className="my-4">
         {camera ? (
           <>
             <h3 className="mb-3">Edit Camera - {cameraId}</h3>

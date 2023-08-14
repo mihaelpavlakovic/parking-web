@@ -15,7 +15,7 @@ import useImageSelector from "../hooks/useImageSelector";
 import { calculateScaledPoint } from "../utils";
 import ParkingSpaceInput from "../utils/ParkingSpaceInput";
 
-const NewCamera = ({ handleCancle }) => {
+const NewCamera = ({ handleCancel }) => {
   const [polygon, setPolygon] = useState([]);
   const [name, setName] = useState("");
   const [parkingType, setParkingType] = useState("");
@@ -346,9 +346,9 @@ const NewCamera = ({ handleCancle }) => {
             type="button"
             variant="secondary"
             className="mb-5 py-2"
-            onClick={handleCancle}
+            onClick={handleCancel}
           >
-            Cancle
+            Cancel
           </Button>
         </form>
       </Container>
