@@ -309,6 +309,7 @@ const NewCamera = ({ handleCancel }) => {
               height={imageSize.height}
               style={{ position: "absolute", top: 0, left: 0 }}
               onClick={handleStageClick}
+              onTap={handleStageClick}
             >
               <Layer>
                 {selectedImage && (
@@ -375,6 +376,7 @@ const NewCamera = ({ handleCancel }) => {
                             radius={circleRadius}
                             fill="red"
                             onClick={() => handleDotClick(index)}
+                            onTap={() => handleDotClick(index)}
                             draggable
                             onDragMove={(e) => handleDragMove(index, e)}
                           />
@@ -399,7 +401,7 @@ const NewCamera = ({ handleCancel }) => {
           />
         )}
         {polygon.length === 4 && (
-          <div className="d-flex gap-2">
+          <div className="d-flex flex-column flex-md-row gap-2">
             <FormItem
               labelText="Name parking space"
               inputType="text"
@@ -422,7 +424,7 @@ const NewCamera = ({ handleCancel }) => {
             </Form.Select>
             <Button
               type="button"
-              variant="secondary"
+              variant="outline-secondary"
               onClick={handleParkingSpotSubmit}
             >
               Submit

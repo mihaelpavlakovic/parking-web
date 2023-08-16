@@ -1,12 +1,12 @@
 // react imports
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { LOGOUT, selectUser } from "../store/user/userSlice";
+import { selectUser } from "../store/user/userSlice";
 
 // component imports
 import Navigation from "../components/Navigation";
 import { Button, Container } from "react-bootstrap";
-import { deleteUser } from "../store/user/userActions";
+import { deleteUser, logout } from "../store/user/userActions";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
@@ -20,7 +20,7 @@ const Profile = () => {
     );
     if (confirmAction) {
       dispatch(deleteUser()).then(() => {
-        dispatch(LOGOUT());
+        dispatch(logout());
         navigate("/login");
       });
     }

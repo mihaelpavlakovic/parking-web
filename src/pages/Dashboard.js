@@ -43,6 +43,7 @@ const Dashboard = () => {
         <h1 className="mt-4 fw-bold" style={{ fontFamily: "Fira Sans" }}>
           Live Cameras:
         </h1>
+        {cameras.length === 0 && <p>You don't have any cameras.</p>}
         {_.map(cameras, (camera, index) => {
           if (!camera?.originalImage) {
             return (

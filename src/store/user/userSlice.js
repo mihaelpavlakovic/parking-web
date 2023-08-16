@@ -19,23 +19,6 @@ export const userSlice = createSlice({
     tokenRequestStatus: "idle",
     userRequestStatus: "idle",
   },
-  reducers: {
-    LOGIN: (state, { payload }) => {
-      state.token = payload.token;
-    },
-    SET_USER: (state, { payload }) => {
-      state.user = payload.userData;
-    },
-    LOGOUT: (state) => {
-      localStorage.removeItem("token");
-      state.token = null;
-      state.user = null;
-      state.serverResponseMessage = "";
-      state.serverResponseError = false;
-      state.tokenRequestStatus = "idle";
-      state.userRequestStatus = "idle";
-    },
-  },
   extraReducers(builder) {
     builder
       .addCase(login.pending, (state) => {
@@ -118,6 +101,6 @@ export const selectTokenRequestStatus = (state) =>
   state.user.tokenRequestStatus;
 export const selectUserRequestStatus = (state) => state.user.userRequestStatus;
 
-export const { LOGIN, SET_USER, LOGOUT } = userSlice.actions;
+// export const { LOGIN, SET_USER, LOGOUT } = userSlice.actions;
 
 export default userSlice.reducer;

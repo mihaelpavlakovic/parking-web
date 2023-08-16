@@ -3,7 +3,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 // library imports
 import { del, get, post } from "../../functions/restClient";
-import { LOGOUT } from "./userSlice";
+// import { LOGOUT } from "./userSlice";
 
 export const login = createAsyncThunk(
   "user/login",

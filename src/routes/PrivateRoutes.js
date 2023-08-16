@@ -2,9 +2,9 @@
 import { useEffect } from "react";
 import { Outlet, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserData } from "../store/user/userActions";
+import { getUserData, logout } from "../store/user/userActions";
 import { getCameras } from "../store/camera/cameraActions";
-import { LOGOUT, selectIsExpired } from "../store/user/userSlice";
+import { selectIsExpired } from "../store/user/userSlice";
 
 const PrivateRoutes = () => {
   const token = localStorage.getItem("token");
@@ -15,14 +15,14 @@ const PrivateRoutes = () => {
   useEffect(() => {
     if (token) {
       if (isExpired) {
-        dispatch(LOGOUT());
+        dispatch(logout());
         navigate("/login");
       } else {
         dispatch(getUserData());
         dispatch(getCameras(token));
       }
     } else {
-      dispatch(LOGOUT());
+      dispatch(logout());
       navigate("/login");
     }
   }, [token, isExpired, dispatch, navigate]);
