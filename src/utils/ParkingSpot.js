@@ -4,14 +4,16 @@ import React from "react";
 // library imports
 import { Line, Text } from "react-konva";
 
-const ParkingSpot = ({ parkingSpot, scaleX, scaleY }) => {
+const ParkingSpot = ({ parkingSpot, scaleX, scaleY, showOccupied }) => {
   const actualLineWidth = 2 / Math.min(scaleX, scaleY);
   const actualFontSize = 16 / Math.min(scaleX, scaleY);
 
   return (
     <>
       <Text
-        text={`${parkingSpot.name} - ${parkingSpot.occupied}`}
+        text={`${parkingSpot.name} ${
+          showOccupied ? `- ${parkingSpot.occupied}` : ""
+        }`}
         fontSize={actualFontSize}
         fill={parkingSpot.occupied ? "red" : "green"}
         x={

@@ -13,7 +13,7 @@ const ParkingSpaceInput = ({
   handleDeleteParkingSpace,
 }) => {
   return (
-    <div className="d-flex gap-2">
+    <div className="d-flex flex-column flex-md-row gap-2">
       <FormItem
         labelText="Name parking space"
         inputType="text"
@@ -55,7 +55,7 @@ const ParkingSpaceInput = ({
             ))}
           </Form.Select>
           <Button
-            variant="danger"
+            variant="outline-danger"
             onClick={() => {
               handleDeleteParkingSpace(index);
             }}

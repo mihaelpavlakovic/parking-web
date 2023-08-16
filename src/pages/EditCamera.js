@@ -6,31 +6,60 @@ import ParkingSpot from "../utils/ParkingSpot";
 import { Button, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import _ from "lodash";
-import { updateCamera } from "../store/camera/cameraActions";
+import {
+  fetchStreamPicture,
+  updateCamera,
+} from "../store/camera/cameraActions";
 import { selectCameras } from "../store/camera/cameraSlice";
 import Navigation from "../components/Navigation";
 import useImageScaler from "../hooks/useImageScaler";
 import useImageSelector from "../hooks/useImageSelector";
 import { calculateScaledPoint } from "../utils";
 import ParkingSpaceInput from "../utils/ParkingSpaceInput";
+import ErrorMessage from "../components/ErrorMessage";
+import SpinnerItem from "../utils/SpinnerItem";
 
 const EditCamera = () => {
   const { cameraId } = useParams();
   const [polygon, setPolygon] = useState([]);
-  const [name, setName] = useState("");
+  const [parkingSpotName, setParkingSpotName] = useState("");
+  const [parkingSpotNameError, setParkingSpotNameError] = useState("");
+  const [parkingSpotType, setParkingSpotType] = useState("");
+  const [parkingSpotTypeError, setParkingSpotTypeError] = useState("");
   const cameras = useSelector(selectCameras);
   const [camera, setCamera] = useState(null);
   const [cameraName, setCameraName] = useState("");
+  const [cameraNameError, setCameraNameError] = useState("");
   const [cameraSource, setCameraSource] = useState("");
+  const [cameraSourceError, setCameraSourceError] = useState("");
   const [parkingSpaces, setParkingSpaces] = useState([]);
-  const [error, setError] = useState("");
+  const [parkingSpacesError, setParkingSpacesError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isDataFetched, setIsDataFetched] = useState(false);
-  const [parkingType, setParkingType] = useState("");
   const { imageSize, originalImageSize, setOriginalImageSize } =
     useImageScaler();
   const { selectedImage } = useImageSelector(camera?.sourceURL);
+
+  useEffect(() => {
+    setCameraNameError("");
+  }, [cameraName]);
+
+  useEffect(() => {
+    setCameraSourceError("");
+  }, [cameraSource]);
+
+  useEffect(() => {
+    setParkingSpacesError("");
+  }, [parkingSpaces]);
+
+  useEffect(() => {
+    setParkingSpotNameError("");
+  }, [parkingSpotName]);
+
+  useEffect(() => {
+    setParkingSpotTypeError("");
+  }, [parkingSpotType]);
 
   useEffect(() => {
     if (!isDataFetched) {
@@ -51,6 +80,10 @@ const EditCamera = () => {
       fetchData();
     }
   }, [cameraId, cameras, isDataFetched]);
+
+  const handleResetParkingSpaces = () => {
+    setParkingSpaces([]);
+  };
 
   const handleDragMove = (index, e) => {
     const stage = e.target.getStage();
@@ -77,6 +110,12 @@ const EditCamera = () => {
     const updatedPolygon = [...polygon];
     updatedPolygon.splice(index, 1);
     setPolygon(updatedPolygon);
+  };
+
+  const handleSubmitUrl = () => {
+    if (cameraSource) {
+      dispatch(fetchStreamPicture({ streamUrl: cameraSource }));
+    }
   };
 
   const handleStageClick = (e) => {
@@ -114,7 +153,10 @@ const EditCamera = () => {
 
   const handleTypeChange = (e, index) => {
     const updatedParkingSpaces = [...parkingSpaces];
-    updatedParkingSpaces[index].type = e.target.value;
+    updatedParkingSpaces[index] = {
+      ...updatedParkingSpaces[index],
+      type: e.target.value,
+    };
     setParkingSpaces(updatedParkingSpaces);
   };
 
@@ -130,47 +172,82 @@ const EditCamera = () => {
   const handleParkingSpotSubmit = (e) => {
     e.preventDefault();
 
-    if (polygon.length === 4 && name !== "") {
-      const existingParkingNames = parkingSpaces.map(
-        (parkingSpace) => parkingSpace.name
-      );
-      if (existingParkingNames.includes(name)) {
-        setError("Parking spot name is already in use.");
-      } else {
-        if (selectedImage) {
-          // Calculate the scaled points based on the image size
-          const scaledPolygon = polygon.map((point) => [point[0], point[1]]);
-
-          // Create the new parking space with scaled points
-          const newParkingSpace = {
-            name,
-            polygon: scaledPolygon,
-            type: parkingType,
-          };
-          setParkingSpaces([...parkingSpaces, newParkingSpace]);
-          setPolygon([]);
-          setName("");
-          setError("");
-        } else {
-          setError("Please select an image first.");
-        }
-      }
-    } else {
-      setError("Please enter parking spot name.");
+    if (polygon.length !== 4) {
+      return;
     }
+
+    if (parkingSpotName === "" || parkingSpotType === "") {
+      if (parkingSpotName === "" && parkingSpotType === "") {
+        setParkingSpotNameError("Please select parking spot name.");
+        setParkingSpotTypeError("Please select parking spot type.");
+      } else if (parkingSpotName === "") {
+        setParkingSpotNameError("Please select parking spot name.");
+      } else {
+        setParkingSpotTypeError("Please select parking spot type.");
+      }
+      return;
+    }
+
+    const existingParkingNames = parkingSpaces.map(
+      (parkingSpace) => parkingSpace.name
+    );
+
+    if (existingParkingNames.includes(parkingSpotName)) {
+      setParkingSpotNameError("Parking spot name is already in use.");
+      return;
+    }
+
+    if (!selectedImage) {
+      return;
+    }
+
+    const scaledPolygon = polygon.map((point) => [point[0], point[1]]);
+    const newParkingSpace = {
+      name: parkingSpotName,
+      polygon: scaledPolygon,
+      type: parkingSpotType,
+    };
+    setParkingSpaces([...parkingSpaces, newParkingSpace]);
+    setPolygon([]);
+    setParkingSpotName("");
+    setParkingSpotNameError("");
+    setParkingSpotTypeError("");
+    setParkingSpotType("");
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
-    dispatch(
-      updateCamera({
-        id: cameraId,
-        sourceURL: cameraSource,
-        name: cameraName,
-        parkingSpaces,
-      })
-    );
+    if (
+      cameraName === "" ||
+      cameraSource === "" ||
+      parkingSpaces.length === 0
+    ) {
+      if (cameraName === "") {
+        setCameraNameError("Please enter camera name.");
+      } else if (cameraSource === "") {
+        setCameraSourceError("Please enter camera source URL.");
+      } else if (parkingSpaces.length === 0) {
+        setParkingSpacesError("Please enter at least one parking space.");
+      }
+      return;
+    }
+
+    const updateParkingCamera = {
+      id: cameraId,
+      sourceURL: cameraSource,
+      name: cameraName,
+      parkingSpaces,
+    };
+
+    dispatch(updateCamera(updateParkingCamera)).then(() => {
+      setCameraName("");
+      setCameraNameError("");
+      setCameraSource("");
+      setCameraSourceError("");
+      setParkingSpaces([]);
+      navigate("/");
+    });
 
     navigate("/cameras");
   };
@@ -181,7 +258,25 @@ const EditCamera = () => {
       <Container className="my-4">
         {camera ? (
           <>
-            <h3 className="mb-3">Edit Camera - {cameraId}</h3>
+            <h3 className="mb-3">Edit Camera - {cameraName}</h3>
+            {cameraNameError && (
+              <ErrorMessage
+                message={cameraNameError}
+                onDismiss={() => setCameraNameError("")}
+              />
+            )}
+            {cameraSourceError && (
+              <ErrorMessage
+                message={cameraSourceError}
+                onDismiss={() => setCameraSourceError("")}
+              />
+            )}
+            {parkingSpacesError && (
+              <ErrorMessage
+                message={parkingSpacesError}
+                onDismiss={() => setParkingSpacesError("")}
+              />
+            )}
             <form
               onSubmit={handleFormSubmit}
               className="d-flex flex-column gap-3"
@@ -192,102 +287,134 @@ const EditCamera = () => {
                 formId="cameraName"
                 formValue={cameraName}
                 handleChangeValue={handleCameraNameChange}
+                addStyle={{ borderColor: cameraNameError ? "red" : "inherit" }}
               />
-              <FormItem
-                labelText="URL for camera source"
-                inputType="text"
-                formId="cameraSource"
-                formValue={cameraSource}
-                handleChangeValue={handleCameraSourceChange}
-              />
-
-              <Stage
-                width={imageSize.width}
-                height={imageSize.height}
-                onClick={handleStageClick}
-              >
-                <Layer>
-                  {selectedImage && (
-                    <Image
-                      image={selectedImage}
-                      width={imageSize.width}
-                      height={imageSize.height}
-                    />
-                  )}
-                  {originalImageSize.width !== 0 &&
-                    originalImageSize.height !== 0 && (
-                      <Group
-                        scaleX={
-                          originalImageSize.width !== 0
-                            ? imageSize.width / originalImageSize.width
-                            : 1
-                        }
-                        scaleY={
-                          originalImageSize.height !== 0
-                            ? imageSize.height / originalImageSize.height
-                            : 1
-                        }
-                      >
-                        {parkingSpaces?.map((parkingSpace) => {
-                          const flattenedParkingSpot = _.flatten(
-                            parkingSpace.polygon
-                          );
-                          const parkingSpots = {
-                            name: parkingSpace.name,
-                            occupied: true,
-                            flattenedParkingSpot,
-                          };
-                          return (
-                            <ParkingSpot
-                              key={parkingSpots.name}
-                              parkingSpot={parkingSpots}
-                              scaleX={
-                                originalImageSize.width !== 0
-                                  ? imageSize.width / originalImageSize.width
-                                  : 1
-                              }
-                              scaleY={
-                                originalImageSize.height !== 0
-                                  ? imageSize.height / originalImageSize.height
-                                  : 1
-                              }
-                            />
-                          );
-                        })}
-                        {polygon.map((spot, index) => {
-                          const scaleX =
-                            imageSize.width / originalImageSize.width;
-                          const scaleY =
-                            imageSize.height / originalImageSize.height;
-
-                          // Calculate the actual radius based on scaling and base radius
-                          const circleRadius = 6 / Math.min(scaleX, scaleY);
-                          return (
-                            <Circle
-                              key={index}
-                              x={spot[0]}
-                              y={spot[1]}
-                              radius={circleRadius}
-                              fill="red"
-                              onClick={() => handleDotClick(index)}
-                              draggable
-                              onDragMove={(e) => handleDragMove(index, e)}
-                            />
-                          );
-                        })}
-                      </Group>
+              <div className="d-flex flex-column flex-md-row gap-2">
+                <FormItem
+                  labelText="URL for camera source"
+                  inputType="text"
+                  formId="cameraSource"
+                  formValue={cameraSource}
+                  handleChangeValue={handleCameraSourceChange}
+                  addStyle={{
+                    borderColor: cameraSourceError ? "red" : "inherit",
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={() => {
+                    handleResetParkingSpaces();
+                    handleSubmitUrl();
+                  }}
+                  className="py-2"
+                >
+                  Fetch Picture
+                </Button>
+              </div>
+              {selectedImage === null && <SpinnerItem />}
+              {selectedImage !== null && (
+                <Stage
+                  width={imageSize.width}
+                  height={imageSize.height}
+                  onClick={handleStageClick}
+                >
+                  <Layer>
+                    {selectedImage && (
+                      <Image
+                        image={selectedImage}
+                        width={imageSize.width}
+                        height={imageSize.height}
+                      />
                     )}
-                </Layer>
-              </Stage>
-              {error && <p className="text-danger">{error}</p>}
+                    {originalImageSize.width !== 0 &&
+                      originalImageSize.height !== 0 && (
+                        <Group
+                          scaleX={
+                            originalImageSize.width !== 0
+                              ? imageSize.width / originalImageSize.width
+                              : 1
+                          }
+                          scaleY={
+                            originalImageSize.height !== 0
+                              ? imageSize.height / originalImageSize.height
+                              : 1
+                          }
+                        >
+                          {parkingSpaces?.map((parkingSpace) => {
+                            const flattenedParkingSpot = _.flatten(
+                              parkingSpace.polygon
+                            );
+                            const parkingSpots = {
+                              name: parkingSpace.name,
+                              occupied: true,
+                              flattenedParkingSpot,
+                            };
+                            return (
+                              <ParkingSpot
+                                key={parkingSpots.name}
+                                parkingSpot={parkingSpots}
+                                scaleX={
+                                  originalImageSize.width !== 0
+                                    ? imageSize.width / originalImageSize.width
+                                    : 1
+                                }
+                                scaleY={
+                                  originalImageSize.height !== 0
+                                    ? imageSize.height /
+                                      originalImageSize.height
+                                    : 1
+                                }
+                                showOccupied={false}
+                              />
+                            );
+                          })}
+                          {polygon.map((spot, index) => {
+                            const scaleX =
+                              imageSize.width / originalImageSize.width;
+                            const scaleY =
+                              imageSize.height / originalImageSize.height;
+
+                            // Calculate the actual radius based on scaling and base radius
+                            const circleRadius = 6 / Math.min(scaleX, scaleY);
+                            return (
+                              <Circle
+                                key={index}
+                                x={spot[0]}
+                                y={spot[1]}
+                                radius={circleRadius}
+                                fill="red"
+                                onClick={() => handleDotClick(index)}
+                                draggable
+                                onDragMove={(e) => handleDragMove(index, e)}
+                              />
+                            );
+                          })}
+                        </Group>
+                      )}
+                  </Layer>
+                </Stage>
+              )}
+              {parkingSpotNameError && (
+                <ErrorMessage
+                  message={parkingSpotNameError}
+                  onDismiss={() => setParkingSpotNameError("")}
+                />
+              )}
+              {parkingSpotTypeError && (
+                <ErrorMessage
+                  message={parkingSpotTypeError}
+                  onDismiss={() => setParkingSpotTypeError("")}
+                />
+              )}
               {polygon.length === 4 && (
                 <ParkingSpaceInput
                   parkingSpace={{
-                    name,
+                    parkingSpotName,
                   }}
                   isEditing={false}
-                  setParkingType={setParkingType}
-                  handleNameChange={(e) => setName(e.target.value)}
+                  setParkingType={setParkingSpotType}
+                  handleNameChange={(e) => setParkingSpotName(e.target.value)}
                   handleParkingSpotSubmit={handleParkingSpotSubmit}
                 />
               )}
@@ -322,7 +449,7 @@ const EditCamera = () => {
             </form>
           </>
         ) : (
-          <p>Loading...</p>
+          <SpinnerItem />
         )}
       </Container>
     </div>

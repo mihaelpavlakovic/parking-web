@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   addCamera,
   fetchCameraFrame,
+  fetchStreamPicture,
   getCameras,
   removeCamera,
   updateCamera,
@@ -13,9 +14,13 @@ export const cameraSlice = createSlice({
   name: "camera",
   initialState: {
     cameras: [],
+    streamPicture: "",
     serverResponseError: false,
     serverResponseMessage: "",
     cameraRequestStatus: "idle",
+    fetchStreamResponseError: false,
+    fetchStreamPictureError: "",
+    fetchStreamPictureStatus: "idle",
   },
   reducers: {
     updateCameraData: (state, { payload }) => {
@@ -42,6 +47,10 @@ export const cameraSlice = createSlice({
       if (cameraToUpdate) {
         Object.assign(cameraToUpdate, occupancy, { timestamp });
       }
+    },
+    dismissFetchStreamPictureError: (state) => {
+      state.fetchStreamResponseError = false;
+      state.fetchStreamPictureError = "";
     },
     SET_CAMERA_DATA: (state, { payload }) => {
       state.cameras = payload.cameras;
@@ -109,12 +118,32 @@ export const cameraSlice = createSlice({
       .addCase(fetchCameraFrame.rejected, (state) => {
         state.cameraRequestStatus = "failed";
       })
+      .addCase(fetchStreamPicture.pending, (state) => {
+        state.fetchStreamPictureStatus = "loading";
+      })
+      .addCase(fetchStreamPicture.fulfilled, (state, { payload }) => {
+        const { streamPicture, serverResponseMessage, serverResponseError } =
+          payload;
+        if (serverResponseError) {
+          state.streamPicture = "";
+          state.fetchStreamPictureError = serverResponseMessage;
+          state.fetchStreamResponseError = serverResponseError;
+        } else {
+          state.streamPicture = streamPicture;
+          state.fetchStreamPictureError = serverResponseMessage;
+          state.fetchStreamResponseError = serverResponseError;
+        }
+        state.fetchStreamPictureStatus = "succeeded";
+      })
+      .addCase(fetchStreamPicture.rejected, (state) => {
+        state.fetchStreamPictureStatus = "failed";
+      })
       .addCase(addCamera.pending, (state) => {
         state.cameraRequestStatus = "loading";
       })
       .addCase(addCamera.fulfilled, (state) => {
+        state.streamPicture = "";
         state.cameraRequestStatus = "succeeded";
-        console.log("succeeded");
       })
       .addCase(addCamera.rejected, (state) => {
         state.cameraRequestStatus = "failed";
@@ -155,12 +184,24 @@ export const cameraSlice = createSlice({
 });
 
 export const selectCameras = (state) => state.camera.cameras;
+export const selectStreamPicture = (state) => state.camera.streamPicture;
+export const selectFetchStreamResponseError = (state) =>
+  state.camera.fetchStreamResponseError;
 export const selectServerResponseError = (state) =>
   state.camera.serverResponseError;
 export const selectServerResponseMessage = (state) =>
   state.camera.serverResponseMessage;
+export const selectFetchStreamPictureError = (state) =>
+  state.camera.fetchStreamPictureError;
+export const selectFetchStreamPictureStatus = (state) =>
+  state.camera.fetchStreamPictureStatus;
 
-export const { updateCameraData, startUpdates, SET_CAMERA_DATA, REMOVE_DATA } =
-  cameraSlice.actions;
+export const {
+  updateCameraData,
+  startUpdates,
+  dismissFetchStreamPictureError,
+  SET_CAMERA_DATA,
+  REMOVE_DATA,
+} = cameraSlice.actions;
 
 export default cameraSlice.reducer;

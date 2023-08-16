@@ -67,7 +67,6 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
               <Layer>
                 {_.map(parkingLocations, (parkingLocation) => {
                   const originalParkingSpot = parkingLocation.polygon;
-                  // Calculate the dynamic scaleX and scaleY values based on the original image size
                   const scaleX =
                     originalImageSize.width !== 0
                       ? imageSize.width / originalImageSize.width
@@ -91,6 +90,7 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
                       parkingSpot={parkingSpots}
                       scaleX={scaleX * 2}
                       scaleY={scaleY * 2}
+                      showOccupied={true}
                     />
                   );
                 })}

@@ -61,6 +61,34 @@ export const fetchCameraFrame = createAsyncThunk(
   }
 );
 
+export const fetchStreamPicture = createAsyncThunk(
+  "camera/fetchStreamPicture",
+  async ({ streamUrl }, thunkAPI) => {
+    const userId = thunkAPI.getState().user.user.id;
+
+    const encodedStreamUrl = encodeURIComponent(window.btoa(streamUrl));
+    const encodedUserId = encodeURIComponent(userId);
+
+    const response = await get(
+      `${baseURL}cameras/fetchFrame?sourceUrl=${encodedStreamUrl}&basicAuth=${encodedUserId}`
+    );
+    const { data, message, error } = response;
+
+    if (error) {
+      return {
+        streamPicture: "",
+        serverResponseMessage: message,
+        serverResponseError: error,
+      };
+    }
+    return {
+      streamPicture: data,
+      serverResponseMessage: message,
+      serverResponseError: error,
+    };
+  }
+);
+
 export const startCameraUpdates = createAsyncThunk(
   "camera/startUpdates",
   async (cameras, thunkAPI) => {
@@ -146,10 +174,8 @@ export const updateCamera = createAsyncThunk(
 export const removeCamera = createAsyncThunk(
   "camera/removeCamera",
   async (cameraId) => {
-    console.log("cameraId:", cameraId);
     removeEventSource(cameraId);
     const response = await del(`cameras/remove?cameraId=${cameraId}`);
-    console.log("response:", response);
 
     if (response.error) {
       return {
