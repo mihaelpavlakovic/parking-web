@@ -40,6 +40,7 @@ export const userSlice = createSlice({
         localStorage.removeItem("token");
         state.token = null;
         state.user = null;
+        state.isExpired = false;
         state.serverResponseMessage = "";
         state.serverResponseError = false;
         state.tokenRequestStatus = "idle";
@@ -100,7 +101,5 @@ export const selectServerResponseMessage = (state) =>
 export const selectTokenRequestStatus = (state) =>
   state.user.tokenRequestStatus;
 export const selectUserRequestStatus = (state) => state.user.userRequestStatus;
-
-// export const { LOGIN, SET_USER, LOGOUT } = userSlice.actions;
 
 export default userSlice.reducer;

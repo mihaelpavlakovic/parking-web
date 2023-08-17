@@ -36,6 +36,7 @@ const NewCamera = ({ handleCancel }) => {
   const [cameraSource, setCameraSource] = useState("");
   const [cameraSourceError, setCameraSourceError] = useState("");
   const [parkingSpaces, setParkingSpaces] = useState([]);
+  const [cameraToken, setCameraToken] = useState("");
   const [parkingSpacesError, setParkingSpacesError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -127,6 +128,10 @@ const NewCamera = ({ handleCancel }) => {
     setParkingSpaces([]);
   };
 
+  const handleCameraTokenChange = (e) => {
+    setCameraToken(e.target.value);
+  };
+
   const handleDragMove = (index, e) => {
     const stage = e.target.getStage();
     const pointerPosition = stage.getPointerPosition();
@@ -153,7 +158,9 @@ const NewCamera = ({ handleCancel }) => {
 
   const handleSubmitUrl = () => {
     if (cameraSource) {
-      dispatch(fetchStreamPicture({ streamUrl: cameraSource }));
+      dispatch(
+        fetchStreamPicture({ streamUrl: cameraSource, basicAuth: cameraToken })
+      );
     }
   };
 
@@ -225,6 +232,7 @@ const NewCamera = ({ handleCancel }) => {
       name: cameraName,
       sourceURL: cameraSource,
       parkingSpaces,
+      basicAuth: cameraToken,
     };
 
     dispatch(addCamera(createParkingCamera)).then(() => {
@@ -287,6 +295,14 @@ const NewCamera = ({ handleCancel }) => {
           >
             Fetch Picture
           </Button>
+          <FormItem
+            labelText="Token"
+            inputType="text"
+            formId="token"
+            formValue={cameraToken}
+            handleChangeValue={handleCameraTokenChange}
+            // addStyle={{ borderColor: cameraSourceError ? "red" : "inherit" }}
+          />
         </div>
         {cameraStatus === "loading" && <SpinnerItem />}
         {cameraStatus === "succeeded" && cameraError && (

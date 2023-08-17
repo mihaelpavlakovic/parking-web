@@ -1,20 +1,18 @@
 // react imports
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getCameras } from "../store/camera/cameraActions";
+import { useSelector } from "react-redux";
+
+// store imports
 import { selectUserRequestStatus } from "../store/user/userSlice";
 import {
   selectCameras,
   selectServerResponseMessage,
 } from "../store/camera/cameraSlice";
 
-// bootstrap imports
-import { Container, Placeholder } from "react-bootstrap";
-
 // component imports
 import Navigation from "../components/Navigation";
 
 // library imports
+import { Container, Placeholder } from "react-bootstrap";
 import ParkingCamera from "../utils/ParkingCamera";
 var _ = require("lodash");
 
@@ -22,11 +20,6 @@ const Dashboard = () => {
   const userRequestStatus = useSelector(selectUserRequestStatus);
   const cameras = useSelector(selectCameras);
   const serverResponseMessage = useSelector(selectServerResponseMessage);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(getCameras());
-  }, [dispatch]);
 
   let content;
   if (userRequestStatus === "loading") {
@@ -43,7 +36,9 @@ const Dashboard = () => {
         <h1 className="mt-4 fw-bold" style={{ fontFamily: "Fira Sans" }}>
           Live Cameras:
         </h1>
-        {cameras.length === 0 && <p>You don't have any cameras.</p>}
+        {cameras?.length === 0 && (
+          <p>You don't have any live cameras to display.</p>
+        )}
         {_.map(cameras, (camera, index) => {
           if (!camera?.originalImage) {
             return (

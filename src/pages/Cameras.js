@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Navigation from "../components/Navigation";
-import { Button, Container, Image } from "react-bootstrap";
+import { Button, Container, Image, Modal } from "react-bootstrap";
 import { removeCamera } from "../store/camera/cameraActions";
 import { selectCameras } from "../store/camera/cameraSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,9 +14,12 @@ const Cameras = () => {
   const cameras = useSelector(selectCameras);
   const [showAddCamera, setShowAddCamera] = useState(false);
   const dispatch = useDispatch();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [cameraForDeletion, setCameraForDeletion] = useState("");
 
   const handleDelete = (cameraId) => {
     dispatch(removeCamera(cameraId));
+    setShowDeleteModal(false);
   };
 
   const handleAddCamera = () => {
@@ -25,6 +28,23 @@ const Cameras = () => {
 
   return (
     <div>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete camera - {cameraForDeletion.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete the camera?</Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="danger"
+            onClick={() => handleDelete(cameraForDeletion.id)}
+          >
+            Delete
+          </Button>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Navigation />
       <Container className="mt-4">
         <div className="d-flex justify-content-between align-items-center mb-5">
@@ -51,7 +71,10 @@ const Cameras = () => {
                         </Link>
                         <Button
                           variant="danger"
-                          onClick={() => handleDelete(camera.id)}
+                          onClick={() => {
+                            setCameraForDeletion(camera);
+                            setShowDeleteModal(true);
+                          }}
                         >
                           Delete
                         </Button>

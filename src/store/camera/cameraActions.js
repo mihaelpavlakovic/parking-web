@@ -31,6 +31,7 @@ export const getCameras = createAsyncThunk(
     }
 
     cameraData = { ...cameraData, data: currentUserCameras };
+    console.log("cameraData:", cameraData);
     thunkAPI.dispatch(updateCameraData({ cameraData }));
     thunkAPI.dispatch(startCameraUpdates(cameraData));
 
@@ -63,11 +64,11 @@ export const fetchCameraFrame = createAsyncThunk(
 
 export const fetchStreamPicture = createAsyncThunk(
   "camera/fetchStreamPicture",
-  async ({ streamUrl }, thunkAPI) => {
-    const userId = thunkAPI.getState().user.user.id;
+  async ({ streamUrl, basicAuth }, thunkAPI) => {
+    // const userId = thunkAPI.getState().user.user.id;
 
     const encodedStreamUrl = encodeURIComponent(window.btoa(streamUrl));
-    const encodedUserId = encodeURIComponent(userId);
+    const encodedUserId = encodeURIComponent(basicAuth);
 
     const response = await get(
       `${baseURL}cameras/fetchFrame?sourceUrl=${encodedStreamUrl}&basicAuth=${encodedUserId}`
@@ -94,8 +95,10 @@ export const startCameraUpdates = createAsyncThunk(
   async (cameras, thunkAPI) => {
     _.forEach(cameras.data, (camera) => {
       const handleCameraUpdate = (camera) => {
-        thunkAPI.dispatch(fetchCameraFrame({ cameraId: camera.cameraId }));
-        thunkAPI.dispatch(startUpdates({ camera }));
+        if (camera.cameraId !== null) {
+          thunkAPI.dispatch(fetchCameraFrame({ cameraId: camera.cameraId }));
+          thunkAPI.dispatch(startUpdates({ camera }));
+        }
       };
 
       function handleEventSourceOpen(event) {
@@ -127,6 +130,7 @@ export const addCamera = createAsyncThunk(
       parkingSpaces,
       userId,
     });
+    console.log("response:", response);
 
     if (response.error) {
       return {
@@ -174,6 +178,7 @@ export const updateCamera = createAsyncThunk(
 export const removeCamera = createAsyncThunk(
   "camera/removeCamera",
   async (cameraId) => {
+    console.log("cameraId:", cameraId);
     removeEventSource(cameraId);
     const response = await del(`cameras/remove?cameraId=${cameraId}`);
 

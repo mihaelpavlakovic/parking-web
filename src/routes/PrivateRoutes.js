@@ -1,7 +1,9 @@
 // react imports
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { Outlet, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+
+// store imports
 import { getUserData, logout } from "../store/user/userActions";
 import { getCameras } from "../store/camera/cameraActions";
 import { selectIsExpired } from "../store/user/userSlice";
@@ -12,20 +14,23 @@ const PrivateRoutes = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const navigateToLogin = useCallback(() => {
+    navigate("/login");
+  }, [navigate]);
+
   useEffect(() => {
-    if (token) {
-      if (isExpired) {
-        dispatch(logout());
-        navigate("/login");
-      } else {
-        dispatch(getUserData());
+    if (token && !isExpired) {
+      dispatch(getUserData()).then(() => {
         dispatch(getCameras(token));
-      }
+      });
     } else {
-      dispatch(logout());
-      navigate("/login");
+      console.log("token else");
+      if (!isExpired) {
+        dispatch(logout());
+        navigateToLogin();
+      }
     }
-  }, [token, isExpired, dispatch, navigate]);
+  }, [token, isExpired, dispatch, navigateToLogin]);
 
   return token ? <Outlet /> : <Navigate to="/login" />;
 };

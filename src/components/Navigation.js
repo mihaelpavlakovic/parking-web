@@ -6,12 +6,11 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 
 // react imports
 import React, { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 // store imports
-// import { LOGOUT } from "../store/user/userSlice";
-import { REMOVE_DATA } from "../store/camera/cameraSlice";
+import { removeStateCameraData } from "../store/camera/cameraSlice";
 import { logout } from "../store/user/userActions";
 import { selectUser } from "../store/user/userSlice";
 
@@ -23,7 +22,7 @@ function OffcanvasExample() {
   const user = useSelector(selectUser);
 
   const logoutHandler = () => {
-    dispatch(REMOVE_DATA());
+    dispatch(removeStateCameraData());
     dispatch(logout());
     setRedirect(true);
   };
@@ -32,7 +31,7 @@ function OffcanvasExample() {
     const handleTokenChange = () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        dispatch(REMOVE_DATA());
+        dispatch(removeStateCameraData());
         dispatch(logout());
         setRedirect(true);
       }
@@ -54,48 +53,60 @@ function OffcanvasExample() {
     content = (
       <>
         <Nav.Link
+          as={Link}
+          to="/"
+          className="link"
           style={{
             fontWeight: location.pathname === "/" ? "700" : "",
           }}
-          href="/"
         >
           Home
         </Nav.Link>
         <Nav.Link
+          as={Link}
+          to="/cameras"
+          className="link"
           style={{
-            fontWeight: location.pathname === "/cameras" ? "700" : "",
+            fontWeight: location.pathname.startsWith("/cameras/") ? "700" : "",
           }}
-          href="/cameras"
         >
           Cameras
         </Nav.Link>
         <Nav.Link
+          as={Link}
+          to="/profile"
+          className="link"
           style={{
             fontWeight: location.pathname === "/profile" ? "700" : "",
           }}
-          href="/profile"
         >
           Profile
         </Nav.Link>
-        <Nav.Link onClick={logoutHandler}>Logout</Nav.Link>
+        <Nav.Link as={Link} className="link" onClick={logoutHandler}>
+          Logout
+        </Nav.Link>
       </>
     );
   } else {
     content = (
       <>
         <Nav.Link
+          as={Link}
+          to="/login"
+          className="link"
           style={{
             fontWeight: location.pathname === "/login" ? "700" : "",
           }}
-          href="/login"
         >
           Login
         </Nav.Link>
         <Nav.Link
+          as={Link}
+          to="/register"
+          className="link"
           style={{
             fontWeight: location.pathname === "/register" ? "700" : "",
           }}
-          href="/register"
         >
           Register
         </Nav.Link>

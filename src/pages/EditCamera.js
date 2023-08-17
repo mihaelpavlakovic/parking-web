@@ -10,7 +10,11 @@ import {
   fetchStreamPicture,
   updateCamera,
 } from "../store/camera/cameraActions";
-import { selectCameras } from "../store/camera/cameraSlice";
+import {
+  removeFetchedStreamPicture,
+  selectCameras,
+  selectStreamPicture,
+} from "../store/camera/cameraSlice";
 import Navigation from "../components/Navigation";
 import useImageScaler from "../hooks/useImageScaler";
 import useImageSelector from "../hooks/useImageSelector";
@@ -21,8 +25,10 @@ import SpinnerItem from "../utils/SpinnerItem";
 
 const EditCamera = () => {
   const { cameraId } = useParams();
+  const streamPicture = useSelector(selectStreamPicture);
   const [polygon, setPolygon] = useState([]);
   const [parkingSpotName, setParkingSpotName] = useState("");
+  const [cameraToken, setCameraToken] = useState("");
   const [parkingSpotNameError, setParkingSpotNameError] = useState("");
   const [parkingSpotType, setParkingSpotType] = useState("");
   const [parkingSpotTypeError, setParkingSpotTypeError] = useState("");
@@ -39,7 +45,7 @@ const EditCamera = () => {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const { imageSize, originalImageSize, setOriginalImageSize } =
     useImageScaler();
-  const { selectedImage } = useImageSelector(camera?.sourceURL);
+  const { selectedImage } = useImageSelector(streamPicture);
 
   useEffect(() => {
     setCameraNameError("");
@@ -64,26 +70,26 @@ const EditCamera = () => {
   useEffect(() => {
     if (!isDataFetched) {
       const fetchData = async () => {
-        const fetchedCameraData = cameras.find(
-          (camera) => camera.id === cameraId
-        );
+        const fetchedCameraData = cameras.find((camera) => {
+          return camera.id === cameraId;
+        });
 
         if (fetchedCameraData) {
           setCamera(fetchedCameraData);
           setCameraName(fetchedCameraData.name);
           setCameraSource(fetchedCameraData.sourceURL);
           setParkingSpaces(fetchedCameraData.parkingSpaces);
+          setCameraToken(fetchedCameraData.basicAuth);
+          dispatch(
+            fetchStreamPicture({ streamUrl: fetchedCameraData.sourceURL })
+          );
           setIsDataFetched(true);
         }
       };
 
       fetchData();
     }
-  }, [cameraId, cameras, isDataFetched]);
-
-  const handleResetParkingSpaces = () => {
-    setParkingSpaces([]);
-  };
+  }, [cameraId, cameras, isDataFetched, dispatch]);
 
   const handleDragMove = (index, e) => {
     const stage = e.target.getStage();
@@ -300,11 +306,20 @@ const EditCamera = () => {
                     borderColor: cameraSourceError ? "red" : "inherit",
                   }}
                 />
+                <FormItem
+                  labelText="Camera token"
+                  inputType="text"
+                  formId="cameraToken"
+                  formValue={cameraToken || ""}
+                  handleChangeValue={handleCameraSourceChange}
+                  // addStyle={{
+                  //   borderColor: cameraSourceError ? "red" : "inherit",
+                  // }}
+                />
                 <Button
                   type="button"
                   variant="outline-secondary"
                   onClick={() => {
-                    handleResetParkingSpaces();
                     handleSubmitUrl();
                   }}
                   className="py-2"
@@ -442,7 +457,10 @@ const EditCamera = () => {
               <Button
                 variant="secondary"
                 type="button"
-                onClick={() => navigate("/cameras")}
+                onClick={() => {
+                  dispatch(removeFetchedStreamPicture());
+                  navigate("/cameras");
+                }}
               >
                 Cancel
               </Button>

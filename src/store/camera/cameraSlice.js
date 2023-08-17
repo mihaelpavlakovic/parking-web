@@ -52,12 +52,10 @@ export const cameraSlice = createSlice({
       state.fetchStreamResponseError = false;
       state.fetchStreamPictureError = "";
     },
-    SET_CAMERA_DATA: (state, { payload }) => {
-      state.cameras = payload.cameras;
-      state.serverResponseError = payload.serverResponseError;
-      state.serverResponseMessage = payload.serverResponseMessage;
+    removeFetchedStreamPicture: (state) => {
+      state.streamPicture = "";
     },
-    REMOVE_DATA: (state) => {
+    removeStateCameraData: (state) => {
       _.forEach(JSON.parse(JSON.stringify(state.cameras)), (camera) => {
         removeEventSource(camera.id);
       });
@@ -184,6 +182,8 @@ export const cameraSlice = createSlice({
 });
 
 export const selectCameras = (state) => state.camera.cameras;
+export const selectCameraRequestStatus = (state) =>
+  state.camera.cameraRequestStatus;
 export const selectStreamPicture = (state) => state.camera.streamPicture;
 export const selectFetchStreamResponseError = (state) =>
   state.camera.fetchStreamResponseError;
@@ -200,8 +200,8 @@ export const {
   updateCameraData,
   startUpdates,
   dismissFetchStreamPictureError,
-  SET_CAMERA_DATA,
-  REMOVE_DATA,
+  removeFetchedStreamPicture,
+  removeStateCameraData,
 } = cameraSlice.actions;
 
 export default cameraSlice.reducer;
