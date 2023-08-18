@@ -2,12 +2,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 // library imports
-import { del, get, post } from "../../functions/restClient";
+import { del, get, post, setHeaders } from "../../functions/restClient";
 
 export const login = createAsyncThunk(
   "user/login",
   async ({ email, password }) => {
-    console.log("email:", email);
     const response = await post("users/login", {
       email: email,
       password: password,
@@ -27,6 +26,19 @@ export const login = createAsyncThunk(
       serverResponseMessage: response.message,
       serverResponseError: response.error,
     };
+  }
+);
+
+export const initializeClientWithToken = createAsyncThunk(
+  "user/initializeClientWithToken",
+  async (_, { dispatch, getState }) => {
+    const token = localStorage.getItem("token");
+    setHeaders(token);
+
+    const user = getState().user.user;
+    if (token && user !== null) {
+      dispatch(login(token));
+    }
   }
 );
 

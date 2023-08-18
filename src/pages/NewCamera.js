@@ -36,7 +36,9 @@ const NewCamera = ({ handleCancel }) => {
   const [cameraSource, setCameraSource] = useState("");
   const [cameraSourceError, setCameraSourceError] = useState("");
   const [parkingSpaces, setParkingSpaces] = useState([]);
-  const [cameraToken, setCameraToken] = useState("");
+  const [authUsername, setAuthUsername] = useState("");
+  const [authUsernameError, setAuthUsernameError] = useState(false);
+  const [authPassword, setAuthPassword] = useState("");
   const [parkingSpacesError, setParkingSpacesError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -46,6 +48,8 @@ const NewCamera = ({ handleCancel }) => {
   const cameraStatus = useSelector(selectFetchStreamPictureStatus);
   const cameraError = useSelector(selectFetchStreamResponseError);
   const cameraErrorMessage = useSelector(selectFetchStreamPictureError);
+  const [isChecked, setIsChecked] = useState(false);
+  const [showPassword, setShowPassword] = useState("");
 
   useEffect(() => {
     setCameraNameError("");
@@ -76,7 +80,11 @@ const NewCamera = ({ handleCancel }) => {
     }
   }, [selectedImage, setOriginalImageSize]);
 
-  const handleStageClick = (e) => {
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+  };
+
+  const handleStageClick = e => {
     const stage = e.target.getStage();
     const pointerPosition = stage.getPointerPosition();
 
@@ -91,21 +99,21 @@ const NewCamera = ({ handleCancel }) => {
     }
   };
 
-  const handleDotClick = (index) => {
+  const handleDotClick = index => {
     const updatedPolygon = [...polygon];
     updatedPolygon.splice(index, 1);
     setPolygon(updatedPolygon);
   };
 
-  const handleNameChange = (e) => {
+  const handleNameChange = e => {
     setParkingSpotName(e.target.value);
   };
 
-  const handleCameraNameChange = (e) => {
+  const handleCameraNameChange = e => {
     setCameraName(e.target.value);
   };
 
-  const handleCameraSourceChange = (e) => {
+  const handleCameraSourceChange = e => {
     setCameraSource(e.target.value);
   };
 
@@ -118,7 +126,7 @@ const NewCamera = ({ handleCancel }) => {
     setParkingSpaces(updatedParkingSpaces);
   };
 
-  const handleDeleteParkingSpace = (index) => {
+  const handleDeleteParkingSpace = index => {
     const updatedParkingSpaces = [...parkingSpaces];
     updatedParkingSpaces.splice(index, 1);
     setParkingSpaces(updatedParkingSpaces);
@@ -128,8 +136,12 @@ const NewCamera = ({ handleCancel }) => {
     setParkingSpaces([]);
   };
 
-  const handleCameraTokenChange = (e) => {
-    setCameraToken(e.target.value);
+  const handleAuthUsernameChange = e => {
+    setAuthUsername(e.target.value);
+  };
+
+  const handleAuthPasswordChange = e => {
+    setAuthPassword(e.target.value);
   };
 
   const handleDragMove = (index, e) => {
@@ -157,14 +169,27 @@ const NewCamera = ({ handleCancel }) => {
   }, [selectedImage, setOriginalImageSize]);
 
   const handleSubmitUrl = () => {
-    if (cameraSource) {
-      dispatch(
-        fetchStreamPicture({ streamUrl: cameraSource, basicAuth: cameraToken })
-      );
+    let authHeader = "";
+
+    if (authUsername && authPassword) {
+      if (/[;:,.]/.test(authUsername)) {
+        setAuthUsernameError(true);
+        return;
+      } else {
+        const combinedCredentials = `${authUsername}:${authPassword}`;
+        const base64Credentials = window.btoa(combinedCredentials);
+
+        authHeader = base64Credentials;
+        setAuthUsernameError(false);
+      }
     }
+
+    dispatch(
+      fetchStreamPicture({ streamUrl: cameraSource, basicAuth: authHeader })
+    );
   };
 
-  const handleParkingSpotSubmit = (e) => {
+  const handleParkingSpotSubmit = e => {
     e.preventDefault();
 
     if (polygon.length !== 4) {
@@ -184,7 +209,7 @@ const NewCamera = ({ handleCancel }) => {
     }
 
     const existingParkingNames = parkingSpaces.map(
-      (parkingSpace) => parkingSpace.name
+      parkingSpace => parkingSpace.name
     );
 
     if (existingParkingNames.includes(parkingSpotName)) {
@@ -196,7 +221,7 @@ const NewCamera = ({ handleCancel }) => {
       return;
     }
 
-    const scaledPolygon = polygon.map((point) => [point[0], point[1]]);
+    const scaledPolygon = polygon.map(point => [point[0], point[1]]);
     const newParkingSpace = {
       name: parkingSpotName,
       polygon: scaledPolygon,
@@ -210,7 +235,7 @@ const NewCamera = ({ handleCancel }) => {
     setParkingSpotType("");
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = e => {
     e.preventDefault();
 
     if (
@@ -228,12 +253,22 @@ const NewCamera = ({ handleCancel }) => {
       return;
     }
 
+    let authHeader = "";
+
+    if (authUsername && authPassword) {
+      const combinedCredentials = `${authUsername}:${authPassword}`;
+      const base64Credentials = window.btoa(combinedCredentials);
+
+      authHeader = base64Credentials;
+    }
+
     const createParkingCamera = {
       name: cameraName,
       sourceURL: cameraSource,
       parkingSpaces,
-      basicAuth: cameraToken,
+      basicAuth: authHeader,
     };
+    console.log("handleFormSubmit ~ createParkingCamera:", createParkingCamera);
 
     dispatch(addCamera(createParkingCamera)).then(() => {
       setCameraName("");
@@ -266,6 +301,12 @@ const NewCamera = ({ handleCancel }) => {
           onDismiss={() => setParkingSpacesError("")}
         />
       )}
+      {authUsernameError && (
+        <ErrorMessage
+          message={"The username contains special characters."}
+          onDismiss={() => setAuthUsernameError(false)}
+        />
+      )}
       <form onSubmit={handleFormSubmit} className="d-flex flex-column gap-3">
         <FormItem
           labelText="Parking location name"
@@ -273,7 +314,7 @@ const NewCamera = ({ handleCancel }) => {
           formId="cameraName"
           formValue={cameraName}
           handleChangeValue={handleCameraNameChange}
-          addStyle={{ borderColor: cameraNameError ? "red" : "inherit" }}
+          addStyle={{ borderColor: cameraNameError ? "red" : "" }}
         />
         <div className="d-flex flex-column flex-md-row gap-2">
           <FormItem
@@ -282,8 +323,44 @@ const NewCamera = ({ handleCancel }) => {
             formId="cameraSource"
             formValue={cameraSource}
             handleChangeValue={handleCameraSourceChange}
-            addStyle={{ borderColor: cameraSourceError ? "red" : "inherit" }}
+            addStyle={{ borderColor: cameraSourceError ? "red" : "" }}
           />
+          <Form.Check
+            type="checkbox"
+            id="auth-checkbox"
+            label="Authorization"
+            checked={isChecked}
+            onChange={handleCheckboxChange}
+          />
+          {isChecked && (
+            <>
+              <FormItem
+                labelText="Username"
+                inputType="text"
+                formId="username"
+                formValue={authUsername}
+                handleChangeValue={handleAuthUsernameChange}
+                addStyle={{
+                  borderColor: authUsernameError ? "red" : "inherit",
+                }}
+              />
+              <FormItem
+                labelText="Password"
+                inputType={showPassword ? "text" : "password"}
+                formId="password"
+                formValue={authPassword}
+                handleChangeValue={handleAuthPasswordChange}
+                // addStyle={{ borderColor: cameraSourceError ? "red" : "inherit" }}
+              />
+              <Form.Check
+                type="checkbox"
+                id="password-checkbox"
+                label="Show password"
+                checked={showPassword}
+                onChange={() => setShowPassword(!showPassword)}
+              />
+            </>
+          )}
           <Button
             type="button"
             variant="outline-secondary"
@@ -295,14 +372,6 @@ const NewCamera = ({ handleCancel }) => {
           >
             Fetch Picture
           </Button>
-          <FormItem
-            labelText="Token"
-            inputType="text"
-            formId="token"
-            formValue={cameraToken}
-            handleChangeValue={handleCameraTokenChange}
-            // addStyle={{ borderColor: cameraSourceError ? "red" : "inherit" }}
-          />
         </div>
         {cameraStatus === "loading" && <SpinnerItem />}
         {cameraStatus === "succeeded" && cameraError && (
@@ -349,7 +418,7 @@ const NewCamera = ({ handleCancel }) => {
                           : 1
                       }
                     >
-                      {parkingSpaces?.map((parkingSpace) => {
+                      {parkingSpaces?.map(parkingSpace => {
                         const flattenedParkingSpot = _.flatten(
                           parkingSpace.polygon
                         );
@@ -362,17 +431,6 @@ const NewCamera = ({ handleCancel }) => {
                           <ParkingSpot
                             key={parkingSpots.name}
                             parkingSpot={parkingSpots}
-                            scaleX={
-                              originalImageSize.width !== 0
-                                ? imageSize.width / originalImageSize.width
-                                : 1
-                            }
-                            scaleY={
-                              originalImageSize.height !== 0
-                                ? imageSize.height / originalImageSize.height
-                                : 1
-                            }
-                            showOccupied={false}
                           />
                         );
                       })}
@@ -394,7 +452,7 @@ const NewCamera = ({ handleCancel }) => {
                             onClick={() => handleDotClick(index)}
                             onTap={() => handleDotClick(index)}
                             draggable
-                            onDragMove={(e) => handleDragMove(index, e)}
+                            onDragMove={e => handleDragMove(index, e)}
                           />
                         );
                       })}
@@ -430,7 +488,7 @@ const NewCamera = ({ handleCancel }) => {
             />
             <Form.Select
               label="Parking space type:"
-              onChange={(e) => setParkingSpotType(e.target.value)}
+              onChange={e => setParkingSpotType(e.target.value)}
               className={parkingSpotTypeError ? "border-danger" : ""}
             >
               <option value="">Select Type</option>
@@ -452,7 +510,7 @@ const NewCamera = ({ handleCancel }) => {
             {parkingSpaces.map((parkingSpace, index) => {
               const allParkingTypes = ["normal", "disabled", "reserved"];
               const parkingTypeOptions = allParkingTypes.filter(
-                (option) => option !== parkingSpace.type
+                option => option !== parkingSpace.type
               );
               return (
                 <ParkingSpaceInput

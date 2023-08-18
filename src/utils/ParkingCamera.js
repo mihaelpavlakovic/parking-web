@@ -27,10 +27,10 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
   }, [currentImage, setOriginalImageSize]);
 
   const freeParkingSpaces = _.size(
-    _.filter(parkingLocations, (parkingLocation) => !parkingLocation.occupied)
+    _.filter(parkingLocations, parkingLocation => !parkingLocation.occupied)
   );
   const takenParkingSpaces = _.size(
-    _.filter(parkingLocations, (parkingLocation) => parkingLocation.occupied)
+    _.filter(parkingLocations, parkingLocation => parkingLocation.occupied)
   );
 
   return (
@@ -65,7 +65,7 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
           !hasError && (
             <Stage width={imageSize.width} height={imageSize.height}>
               <Layer>
-                {_.map(parkingLocations, (parkingLocation) => {
+                {_.map(parkingLocations, parkingLocation => {
                   const originalParkingSpot = parkingLocation.polygon;
                   const scaleX =
                     originalImageSize.width !== 0
@@ -76,8 +76,12 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
                       ? imageSize.height / originalImageSize.height
                       : 1;
                   const scaledParkingSpot = originalParkingSpot.map(
-                    ([x, y]) => [x * scaleX, y * scaleY]
+                    ([x, y]) => [Math.round(x * scaleX), Math.round(y * scaleY)]
                   );
+                  // console.log(
+                  //   "ParkingCamera ~ scaledParkingSpot:",
+                  //   scaledParkingSpot
+                  // );
                   const parkingSpots = {
                     name: parkingLocation.name,
                     occupied: parkingLocation.occupied,
@@ -88,9 +92,6 @@ const ParkingCamera = ({ camera, currentImage, parkingLocations }) => {
                     <ParkingSpot
                       key={parkingSpots.name}
                       parkingSpot={parkingSpots}
-                      scaleX={scaleX * 2}
-                      scaleY={scaleY * 2}
-                      showOccupied={true}
                     />
                   );
                 })}

@@ -23,12 +23,13 @@ const PrivateRoutes = () => {
       dispatch(getUserData()).then(() => {
         dispatch(getCameras(token));
       });
+    } else if (token && isExpired) {
+      console.log("Token expired. Logging out...");
+      dispatch(logout()).then(() => window.location.reload());
+      navigateToLogin();
     } else {
-      console.log("token else");
-      if (!isExpired) {
-        dispatch(logout());
-        navigateToLogin();
-      }
+      console.log("No token provided. Redirecting to login...");
+      navigateToLogin();
     }
   }, [token, isExpired, dispatch, navigateToLogin]);
 

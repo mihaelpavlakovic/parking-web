@@ -6,6 +6,7 @@ import { selectCameras } from "../store/camera/cameraSlice";
 import { useDispatch, useSelector } from "react-redux";
 import NewCamera from "./NewCamera";
 import { Link } from "react-router-dom";
+import SpinnerItem from "../utils/SpinnerItem";
 
 // library imports
 var _ = require("lodash");
@@ -17,7 +18,7 @@ const Cameras = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cameraForDeletion, setCameraForDeletion] = useState("");
 
-  const handleDelete = (cameraId) => {
+  const handleDelete = cameraId => {
     dispatch(removeCamera(cameraId));
     setShowDeleteModal(false);
   };
@@ -81,7 +82,14 @@ const Cameras = () => {
                       </div>
                     </div>
                     <p className="text-muted">{`Number of parking spaces: ${camera.parkingSpaces.length}`}</p>
-                    <Image src={camera.sourceURL} className="w-100" />
+                    {camera.originalImage ? (
+                      <Image
+                        src={`data:image/png;base64, ${camera.originalImage}`}
+                        className="w-100"
+                      />
+                    ) : (
+                      <SpinnerItem />
+                    )}
                   </div>
                 );
               })}

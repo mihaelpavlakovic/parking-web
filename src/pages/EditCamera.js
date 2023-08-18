@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import FormItem from "../utils/FormItem";
 import { Circle, Group, Layer, Stage, Image } from "react-konva";
 import ParkingSpot from "../utils/ParkingSpot";
-import { Button, Container } from "react-bootstrap";
+import { Button, Container, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import _ from "lodash";
 import {
@@ -11,8 +11,12 @@ import {
   updateCamera,
 } from "../store/camera/cameraActions";
 import {
+  dismissFetchStreamPictureError,
   removeFetchedStreamPicture,
   selectCameras,
+  selectFetchStreamPictureError,
+  selectFetchStreamPictureStatus,
+  selectFetchStreamResponseError,
   selectStreamPicture,
 } from "../store/camera/cameraSlice";
 import Navigation from "../components/Navigation";
@@ -29,6 +33,9 @@ const EditCamera = () => {
   const [polygon, setPolygon] = useState([]);
   const [parkingSpotName, setParkingSpotName] = useState("");
   const [cameraToken, setCameraToken] = useState("");
+  const [authUsername, setAuthUsername] = useState("");
+  const [authUsernameError, setAuthUsernameError] = useState(false);
+  const [authPassword, setAuthPassword] = useState("");
   const [parkingSpotNameError, setParkingSpotNameError] = useState("");
   const [parkingSpotType, setParkingSpotType] = useState("");
   const [parkingSpotTypeError, setParkingSpotTypeError] = useState("");
@@ -46,6 +53,10 @@ const EditCamera = () => {
   const { imageSize, originalImageSize, setOriginalImageSize } =
     useImageScaler();
   const { selectedImage } = useImageSelector(streamPicture);
+  const cameraStatus = useSelector(selectFetchStreamPictureStatus);
+  const cameraError = useSelector(selectFetchStreamResponseError);
+  const cameraErrorMessage = useSelector(selectFetchStreamPictureError);
+  const [showPassword, setShowPassword] = useState("");
 
   useEffect(() => {
     setCameraNameError("");
@@ -70,7 +81,7 @@ const EditCamera = () => {
   useEffect(() => {
     if (!isDataFetched) {
       const fetchData = async () => {
-        const fetchedCameraData = cameras.find((camera) => {
+        const fetchedCameraData = cameras.find(camera => {
           return camera.id === cameraId;
         });
 
@@ -81,7 +92,10 @@ const EditCamera = () => {
           setParkingSpaces(fetchedCameraData.parkingSpaces);
           setCameraToken(fetchedCameraData.basicAuth);
           dispatch(
-            fetchStreamPicture({ streamUrl: fetchedCameraData.sourceURL })
+            fetchStreamPicture({
+              streamUrl: fetchedCameraData.sourceURL,
+              basicAuth: fetchedCameraData.basicAuth,
+            })
           );
           setIsDataFetched(true);
         }
@@ -90,6 +104,23 @@ const EditCamera = () => {
       fetchData();
     }
   }, [cameraId, cameras, isDataFetched, dispatch]);
+
+  useEffect(() => {
+    if (cameraToken) {
+      const decodedCredentials = window.atob(cameraToken).split(":", 2);
+      const [decodedUsername, decodedPassword] = decodedCredentials;
+      setAuthUsername(decodedUsername);
+      setAuthPassword(decodedPassword);
+    }
+  }, [cameraToken]);
+
+  const handleAuthUsernameChange = e => {
+    setAuthUsername(e.target.value);
+  };
+
+  const handleAuthPasswordChange = e => {
+    setAuthPassword(e.target.value);
+  };
 
   const handleDragMove = (index, e) => {
     const stage = e.target.getStage();
@@ -106,25 +137,39 @@ const EditCamera = () => {
     setPolygon(updatedPolygon);
   };
 
-  const handleDeleteParkingSpace = (index) => {
+  const handleDeleteParkingSpace = index => {
     const updatedParkingSpaces = [...parkingSpaces];
     updatedParkingSpaces.splice(index, 1);
     setParkingSpaces(updatedParkingSpaces);
   };
 
-  const handleDotClick = (index) => {
+  const handleDotClick = index => {
     const updatedPolygon = [...polygon];
     updatedPolygon.splice(index, 1);
     setPolygon(updatedPolygon);
   };
 
   const handleSubmitUrl = () => {
-    if (cameraSource) {
-      dispatch(fetchStreamPicture({ streamUrl: cameraSource }));
+    let authHeader = "";
+
+    if (authUsername && authPassword) {
+      if (/[;:,.]/.test(authUsername)) {
+        setAuthUsernameError(true);
+        return;
+      } else {
+        const combinedCredentials = `${authUsername}:${authPassword}`;
+        const base64Credentials = window.btoa(combinedCredentials);
+
+        authHeader = base64Credentials;
+        setAuthUsernameError(false);
+      }
     }
+    dispatch(
+      fetchStreamPicture({ streamUrl: cameraSource, basicAuth: authHeader })
+    );
   };
 
-  const handleStageClick = (e) => {
+  const handleStageClick = e => {
     const stage = e.target.getStage();
     const pointerPosition = stage.getPointerPosition();
 
@@ -149,11 +194,11 @@ const EditCamera = () => {
     setParkingSpaces(updatedParkingSpaces);
   };
 
-  const handleCameraNameChange = (e) => {
+  const handleCameraNameChange = e => {
     setCameraName(e.target.value);
   };
 
-  const handleCameraSourceChange = (e) => {
+  const handleCameraSourceChange = e => {
     setCameraSource(e.target.value);
   };
 
@@ -175,7 +220,7 @@ const EditCamera = () => {
     }
   }, [selectedImage, setOriginalImageSize]);
 
-  const handleParkingSpotSubmit = (e) => {
+  const handleParkingSpotSubmit = e => {
     e.preventDefault();
 
     if (polygon.length !== 4) {
@@ -195,7 +240,7 @@ const EditCamera = () => {
     }
 
     const existingParkingNames = parkingSpaces.map(
-      (parkingSpace) => parkingSpace.name
+      parkingSpace => parkingSpace.name
     );
 
     if (existingParkingNames.includes(parkingSpotName)) {
@@ -207,7 +252,7 @@ const EditCamera = () => {
       return;
     }
 
-    const scaledPolygon = polygon.map((point) => [point[0], point[1]]);
+    const scaledPolygon = polygon.map(point => [point[0], point[1]]);
     const newParkingSpace = {
       name: parkingSpotName,
       polygon: scaledPolygon,
@@ -221,7 +266,7 @@ const EditCamera = () => {
     setParkingSpotType("");
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = e => {
     e.preventDefault();
 
     if (
@@ -283,6 +328,12 @@ const EditCamera = () => {
                 onDismiss={() => setParkingSpacesError("")}
               />
             )}
+            {authUsernameError && (
+              <ErrorMessage
+                message={"The username contains special characters."}
+                onDismiss={() => setAuthUsernameError(false)}
+              />
+            )}
             <form
               onSubmit={handleFormSubmit}
               className="d-flex flex-column gap-3"
@@ -293,7 +344,7 @@ const EditCamera = () => {
                 formId="cameraName"
                 formValue={cameraName}
                 handleChangeValue={handleCameraNameChange}
-                addStyle={{ borderColor: cameraNameError ? "red" : "inherit" }}
+                addStyle={{ borderColor: cameraNameError ? "red" : "" }}
               />
               <div className="d-flex flex-column flex-md-row gap-2">
                 <FormItem
@@ -303,18 +354,31 @@ const EditCamera = () => {
                   formValue={cameraSource}
                   handleChangeValue={handleCameraSourceChange}
                   addStyle={{
-                    borderColor: cameraSourceError ? "red" : "inherit",
+                    borderColor: cameraSourceError ? "red" : "",
                   }}
                 />
                 <FormItem
-                  labelText="Camera token"
+                  labelText="Username"
                   inputType="text"
-                  formId="cameraToken"
-                  formValue={cameraToken || ""}
-                  handleChangeValue={handleCameraSourceChange}
-                  // addStyle={{
-                  //   borderColor: cameraSourceError ? "red" : "inherit",
-                  // }}
+                  formId="username"
+                  formValue={authUsername}
+                  handleChangeValue={handleAuthUsernameChange}
+                  addStyle={{ borderColor: authUsernameError ? "red" : "" }}
+                />
+                <FormItem
+                  labelText="Password"
+                  inputType={showPassword ? "text" : "password"}
+                  formId="password"
+                  formValue={authPassword}
+                  handleChangeValue={handleAuthPasswordChange}
+                  // addStyle={{ borderColor: cameraSourceError ? "red" : "inherit" }}
+                />
+                <Form.Check
+                  type="checkbox"
+                  id="default-checkbox"
+                  label="Show password"
+                  checked={showPassword}
+                  onChange={() => setShowPassword(!showPassword)}
                 />
                 <Button
                   type="button"
@@ -327,7 +391,13 @@ const EditCamera = () => {
                   Fetch Picture
                 </Button>
               </div>
-              {selectedImage === null && <SpinnerItem />}
+              {cameraStatus === "loading" && <SpinnerItem />}
+              {cameraStatus === "succeeded" && cameraError && (
+                <ErrorMessage
+                  message={cameraErrorMessage}
+                  onDismiss={() => dispatch(dismissFetchStreamPictureError())}
+                />
+              )}
               {selectedImage !== null && (
                 <Stage
                   width={imageSize.width}
@@ -356,7 +426,7 @@ const EditCamera = () => {
                               : 1
                           }
                         >
-                          {parkingSpaces?.map((parkingSpace) => {
+                          {parkingSpaces?.map(parkingSpace => {
                             const flattenedParkingSpot = _.flatten(
                               parkingSpace.polygon
                             );
@@ -369,18 +439,6 @@ const EditCamera = () => {
                               <ParkingSpot
                                 key={parkingSpots.name}
                                 parkingSpot={parkingSpots}
-                                scaleX={
-                                  originalImageSize.width !== 0
-                                    ? imageSize.width / originalImageSize.width
-                                    : 1
-                                }
-                                scaleY={
-                                  originalImageSize.height !== 0
-                                    ? imageSize.height /
-                                      originalImageSize.height
-                                    : 1
-                                }
-                                showOccupied={false}
                               />
                             );
                           })}
@@ -401,7 +459,7 @@ const EditCamera = () => {
                                 fill="red"
                                 onClick={() => handleDotClick(index)}
                                 draggable
-                                onDragMove={(e) => handleDragMove(index, e)}
+                                onDragMove={e => handleDragMove(index, e)}
                               />
                             );
                           })}
@@ -429,14 +487,14 @@ const EditCamera = () => {
                   }}
                   isEditing={false}
                   setParkingType={setParkingSpotType}
-                  handleNameChange={(e) => setParkingSpotName(e.target.value)}
+                  handleNameChange={e => setParkingSpotName(e.target.value)}
                   handleParkingSpotSubmit={handleParkingSpotSubmit}
                 />
               )}
               {parkingSpaces?.map((parkingSpace, index) => {
                 const allParkingTypes = ["normal", "disabled", "reserved"];
                 const parkingTypeOptions = allParkingTypes.filter(
-                  (option) => option !== parkingSpace.type
+                  option => option !== parkingSpace.type
                 );
                 return (
                   <ParkingSpaceInput

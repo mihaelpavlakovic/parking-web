@@ -1,16 +1,15 @@
 import axios from "axios";
 import { baseURL } from "../enviroment";
 
-const token = localStorage.getItem("token");
-
 const client = axios.create({
   baseURL,
-  headers: token ? { Authorization: `Bearer ${token}` } : {},
 });
 
 const setHeaders = token => {
-  client.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  localStorage.setItem("token", token);
+  if (token) {
+    client.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    localStorage.setItem("token", token);
+  }
 };
 
 const post = async (url, data) => {

@@ -65,8 +65,6 @@ export const fetchCameraFrame = createAsyncThunk(
 export const fetchStreamPicture = createAsyncThunk(
   "camera/fetchStreamPicture",
   async ({ streamUrl, basicAuth }, thunkAPI) => {
-    // const userId = thunkAPI.getState().user.user.id;
-
     const encodedStreamUrl = encodeURIComponent(window.btoa(streamUrl));
     const encodedUserId = encodeURIComponent(basicAuth);
 
@@ -93,8 +91,8 @@ export const fetchStreamPicture = createAsyncThunk(
 export const startCameraUpdates = createAsyncThunk(
   "camera/startUpdates",
   async (cameras, thunkAPI) => {
-    _.forEach(cameras.data, (camera) => {
-      const handleCameraUpdate = (camera) => {
+    _.forEach(cameras.data, camera => {
+      const handleCameraUpdate = camera => {
         if (camera.cameraId !== null) {
           thunkAPI.dispatch(fetchCameraFrame({ cameraId: camera.cameraId }));
           thunkAPI.dispatch(startUpdates({ camera }));
@@ -122,13 +120,14 @@ export const startCameraUpdates = createAsyncThunk(
 
 export const addCamera = createAsyncThunk(
   "camera/addCamera",
-  async ({ name, sourceURL, parkingSpaces }, thunkAPI) => {
+  async ({ name, sourceURL, parkingSpaces, basicAuth }, thunkAPI) => {
     const userId = thunkAPI.getState().user.user.id;
     const response = await post("cameras/create", {
       sourceURL,
       name,
       parkingSpaces,
       userId,
+      basicAuth,
     });
     console.log("response:", response);
 
@@ -177,7 +176,7 @@ export const updateCamera = createAsyncThunk(
 
 export const removeCamera = createAsyncThunk(
   "camera/removeCamera",
-  async (cameraId) => {
+  async cameraId => {
     console.log("cameraId:", cameraId);
     removeEventSource(cameraId);
     const response = await del(`cameras/remove?cameraId=${cameraId}`);

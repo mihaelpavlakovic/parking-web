@@ -21,19 +21,20 @@ export const userSlice = createSlice({
   },
   extraReducers(builder) {
     builder
-      .addCase(login.pending, (state) => {
+      .addCase(login.pending, state => {
         state.tokenRequestStatus = "loading";
       })
       .addCase(login.fulfilled, (state, { payload }) => {
         state.tokenRequestStatus = "succeeded";
         setHeaders(payload.token?.token);
+        state.token = payload.token?.token;
         state.serverResponseMessage = payload.serverResponseMessage;
         state.serverResponseError = payload.serverResponseError;
       })
       .addCase(login.rejected, (state, { payload }) => {
         state.tokenRequestStatus = "failed";
       })
-      .addCase(logout.pending, (state) => {
+      .addCase(logout.pending, state => {
         state.tokenRequestStatus = "loading";
       })
       .addCase(logout.fulfilled, (state, { payload }) => {
@@ -49,7 +50,7 @@ export const userSlice = createSlice({
       .addCase(logout.rejected, (state, { payload }) => {
         state.tokenRequestStatus = "failed";
       })
-      .addCase(register.pending, (state) => {
+      .addCase(register.pending, state => {
         state.tokenRequestStatus = "loading";
       })
       .addCase(register.fulfilled, (state, { payload }) => {
@@ -60,7 +61,7 @@ export const userSlice = createSlice({
       .addCase(register.rejected, (state, { payload }) => {
         state.tokenRequestStatus = "failed";
       })
-      .addCase(deleteUser.pending, (state) => {
+      .addCase(deleteUser.pending, state => {
         state.tokenRequestStatus = "loading";
       })
       .addCase(deleteUser.fulfilled, (state, { payload }) => {
@@ -68,10 +69,10 @@ export const userSlice = createSlice({
         state.serverResponseMessage = payload.serverResponseMessage;
         state.serverResponseError = payload.serverResponseError;
       })
-      .addCase(deleteUser.rejected, (state) => {
+      .addCase(deleteUser.rejected, state => {
         state.tokenRequestStatus = "failed";
       })
-      .addCase(getUserData.pending, (state) => {
+      .addCase(getUserData.pending, state => {
         state.userRequestStatus = "loading";
       })
       .addCase(getUserData.fulfilled, (state, { payload }) => {
@@ -85,21 +86,20 @@ export const userSlice = createSlice({
         }
         state.userRequestStatus = "succeeded";
       })
-      .addCase(getUserData.rejected, (state) => {
+      .addCase(getUserData.rejected, state => {
         state.userRequestStatus = "failed";
       });
   },
 });
 
-export const selectUser = (state) => state.user.user;
-export const selectToken = (state) => state.user.token;
-export const selectIsExpired = (state) => state.user.isExpired;
-export const selectServerResponseError = (state) =>
+export const selectUser = state => state.user.user;
+export const selectToken = state => state.user.token;
+export const selectIsExpired = state => state.user.isExpired;
+export const selectServerResponseError = state =>
   state.user.serverResponseError;
-export const selectServerResponseMessage = (state) =>
+export const selectServerResponseMessage = state =>
   state.user.serverResponseMessage;
-export const selectTokenRequestStatus = (state) =>
-  state.user.tokenRequestStatus;
-export const selectUserRequestStatus = (state) => state.user.userRequestStatus;
+export const selectTokenRequestStatus = state => state.user.tokenRequestStatus;
+export const selectUserRequestStatus = state => state.user.userRequestStatus;
 
 export default userSlice.reducer;
